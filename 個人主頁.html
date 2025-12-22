@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>晨曦與森林的對話 | 東育's AI & Life</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500&family=Noto+Serif+TC:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #f8f9f8;        
+            --paper-white: #ffffff;
+            --sage-green: #6a8276;      /* 加深綠色提升辨識度 */
+            --forest-green: #1e3a34;    
+            --muted-green: #c2ccc6;     
+            --accent-gold: #a68f6d;     
+            --text-main: #222222;       /* 文字更黑更清晰 */
+            --text-light: #555555;      /* 提升淺色文字對比度 */
+            --sidebar-width: 280px;
+            --base-transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            min-height: 100vh;
+            line-height: 1.8;
+            letter-spacing: 0.04em;
+            overflow-x: hidden;
+        }
+
+        /* 滾動條美化 */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: var(--bg-color); }
+        ::-webkit-scrollbar-thumb { background: var(--muted-green); border-radius: 10px; }
+
+        /* 背景微紋理 - 修正：移到最底層避免干擾文字 */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url('https://www.transparenttextures.com/patterns/p6.png');
+            opacity: 0.15;
+            pointer-events: none;
+            z-index: -1; 
+        }
+
+        /* 側邊欄設計優化 - 修正：增加溢出捲動 */
+        #sidebar {
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            position: fixed;
+            top: 0; left: 0;
+            border-right: 1px solid rgba(0,0,0,0.06);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            padding: 40px 0;
+            transition: var(--base-transition);
+            overflow-y: auto; /* 解決選單無法完整顯示的問題 */
+        }
+
+        .sidebar-header {
+            padding: 0 35px;
+            margin-bottom: 40px;
+        }
+
+        .logo-area {
+            font-family: 'Noto Serif TC', serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--forest-green);
+            line-height: 1.3;
+        }
+
+        .logo-area::after {
+            content: "";
+            display: block;
+            width: 25px;
+            height: 2px;
+            background: var(--accent-gold);
+            margin-top: 12px;
+        }
+
+        .sub-title {
+            font-size: 0.7rem;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            margin-top: 12px;
+        }
+
+        .sidebar-edu-info {
+            padding: 0 35px;
+            margin-bottom: 30px;
+        }
+
+        .sidebar-edu-info p {
+            font-size: 0.85rem;
+            color: var(--sage-green);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+        }
+
+        .sidebar-edu-info p::before {
+            content: "";
+            width: 5px;
+            height: 5px;
+            background: var(--accent-gold);
+            border-radius: 50%;
+            margin-right: 12px;
+        }
+
+        .nav-list {
+            list-style: none;
+            padding: 10px 0;
+            flex-grow: 1;
+        }
+
+        .nav-list li a {
+            display: block;
+            padding: 10px 35px;
+            color: var(--text-main);
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: var(--base-transition);
+            position: relative;
+            font-weight: 400; /* 增加字重，提升清晰度 */
+        }
+
+        .nav-list li a:hover {
+            color: var(--sage-green);
+            padding-left: 45px;
+            background: rgba(124, 148, 136, 0.05);
+        }
+
+        .nav-list li a::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            width: 0;
+            height: 1px;
+            background: var(--sage-green);
+            transition: var(--base-transition);
+        }
+
+        .nav-list li a:hover::before {
+            width: 15px;
+        }
+
+        .sidebar-footer {
+            padding: 20px 35px 0;
+            font-size: 0.7rem;
+            color: var(--text-light);
+            border-top: 1px solid rgba(0,0,0,0.03);
+            margin-top: 20px;
+        }
+
+        /* 內容區優化 */
+        main {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 80px 10%;
+            max-width: 1200px;
+        }
+
+        article {
+            margin-bottom: 120px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        article.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .post-meta {
+            font-size: 0.85rem;
+            color: var(--sage-green);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            letter-spacing: 0.1em;
+            font-weight: 500;
+        }
+
+        .divider {
+            width: 25px;
+            height: 1px;
+            background: var(--muted-green);
+        }
+
+        h2 {
+            font-family: 'Noto Serif TC', serif;
+            margin-bottom: 35px;
+            color: var(--forest-green);
+            font-size: 2.4rem;
+            font-weight: 600;
+            line-height: 1.45;
+        }
+
+        p {
+            margin-bottom: 25px;
+            text-align: justify;
+            font-weight: 400; /* 修正：避免過細導致模糊 */
+        }
+
+        /* 時序表 */
+        .timeline {
+            position: relative;
+            margin: 40px 0;
+            padding-left: 2px;
+        }
+
+        .timeline::before {
+            content: "";
+            position: absolute;
+            left: 0; top: 0; width: 1px; height: 100%;
+            background: linear-gradient(to bottom, var(--muted-green) 0%, transparent 100%);
+        }
+
+        .timeline-item {
+            padding-left: 30px;
+            position: relative;
+            margin-bottom: 40px;
+        }
+
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            left: -4px;
+            top: 10px;
+            width: 7px;
+            height: 7px;
+            background: var(--paper-white);
+            border: 2px solid var(--sage-green);
+            border-radius: 50%;
+        }
+
+        .timeline-item .time {
+            font-size: 0.85rem;
+            color: var(--accent-gold);
+            font-weight: 600;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .timeline-item .school {
+            font-family: 'Noto Serif TC', serif;
+            font-size: 1.15rem;
+            color: var(--forest-green);
+            font-weight: 600;
+        }
+
+        .timeline-item .major {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-top: 3px;
+            display: block;
+        }
+
+        /* 作品卡片 */
+        .showcase-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 40px;
+        }
+
+        .showcase-item {
+            background: var(--paper-white);
+            padding: 35px;
+            border-radius: 4px;
+            transition: var(--base-transition);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            border: 1px solid rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .showcase-item:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(124, 148, 136, 0.12);
+            border-color: var(--sage-green);
+        }
+
+        .showcase-item h3 {
+            font-family: 'Noto Serif TC', serif;
+            font-size: 1.2rem;
+            color: var(--forest-green);
+            margin-bottom: 15px;
+        }
+
+        .showcase-item p {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-bottom: 20px;
+            line-height: 1.7;
+        }
+
+        .showcase-item a {
+            margin-top: auto;
+            font-size: 0.85rem;
+            color: var(--sage-green);
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* 特色卡片 */
+        .feature-card {
+            background: var(--forest-green);
+            color: #f0f5f2;
+            padding: 40px;
+            margin: 40px 0;
+            border-radius: 4px;
+        }
+
+        .feature-card h3 {
+            font-family: 'Noto Serif TC', serif;
+            color: var(--accent-gold);
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+
+        .feature-card li {
+            margin-bottom: 12px;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .feature-card li::before {
+            content: "•";
+            color: var(--accent-gold);
+            margin-right: 12px;
+        }
+
+        /* 聯絡 */
+        .contact-link {
+            font-family: 'Noto Serif TC', serif;
+            font-size: 1.4rem;
+            color: var(--sage-green);
+            text-decoration: none;
+            border-bottom: 2px solid var(--muted-green);
+            padding-bottom: 5px;
+            transition: var(--base-transition);
+        }
+
+        .contact-link:hover {
+            color: var(--forest-green);
+            border-color: var(--forest-green);
+        }
+
+        /* 新增按鈕與浮動箭頭效果樣式 */
+        .heading-with-btn {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .nav-guide-btn {
+            background: var(--forest-green);
+            color: #ffffff;
+            padding: 10px 20px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: var(--base-transition);
+            box-shadow: 0 4px 15px rgba(30, 58, 52, 0.2);
+            border: 1px solid transparent;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-guide-btn:hover {
+            background: var(--sage-green);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(30, 58, 138, 0.3);
+        }
+
+        .floating-arrow {
+            color: var(--accent-gold);
+            font-size: 1.2rem;
+            animation: float 2s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(-10px); }
+        }
+
+        /* 手機版 */
+        .menu-toggle {
+            display: none;
+            position: fixed;
+            top: 20px; right: 20px;
+            padding: 12px 18px;
+            background: var(--paper-white);
+            color: var(--forest-green);
+            border: 1px solid var(--muted-green);
+            cursor: pointer;
+            z-index: 1100;
+            font-size: 0.8rem;
+            letter-spacing: 0.1em;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        @media (max-width: 1024px) {
+            #sidebar { transform: translateX(-100%); width: 260px; }
+            #sidebar.active { transform: translateX(0); }
+            main { margin-left: 0; padding: 80px 25px; }
+            .menu-toggle { display: block; }
+            h2 { font-size: 1.8rem; }
+            .overlay {
+                display: none;
+                position: fixed;
+                top: 0; left: 0; width: 100%; height: 100%;
+                background: rgba(255,255,255,0.9);
+                backdrop-filter: blur(4px);
+                z-index: 999;
+            }
+            .overlay.active { display: block; }
+            .heading-with-btn { gap: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+    <button class="menu-toggle" onclick="toggleMenu()">MENU</button>
+    <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+
+    <nav id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo-area">東育's AI & Life</div>
+            <div class="sub-title">AI Explorer & Minimalist</div>
+        </div>
+
+        <div class="sidebar-edu-info">
+            <p>台南二中</p>
+            <p>世新大學中文系</p>
+        </div>
+
+        <ul class="nav-list">
+            <li><a href="#about">Index / 序</a></li>
+            <li><a href="#education">Education / 經歷</a></li>
+            <li><a href="#project">Project / 智慧搜尋</a></li>
+            <li><a href="#showcase">Showcase / 小玩意</a></li>
+            <li><a href="#blog1">Essays / 科技隨筆</a></li>
+            <li><a href="#contact">Contact / 聯絡</a></li>
+        </ul>
+        
+        <div class="sidebar-footer">
+            &copy; 2025 東育 Studio.<br>In pursuit of AI purity.
+        </div>
+    </nav>
+
+    <main>
+        <article id="about">
+            <div class="post-meta">
+                <span>Profile</span>
+                <span class="divider"></span>
+                <span>關於作者</span>
+            </div>
+            <h2>在程式的森林裡，<br>聽見智慧的呼吸。</h2>
+            <p>我是 楊東育，熱衷於研究人工智慧（AI）的各種可能性，致力於在冰冷的邏輯中注入人文的厚度。對我而言，AI 應該像一陣清風，悄無聲息地解決複雜的問題，卻不帶走生活原有的溫度。</p>
+            <p>在這裡，我分享我對智慧系統的實驗，以及如何將強大的語言模型注入日常工具中，實現真正「可控且溫柔」的智慧化。</p>
+            
+            <div style="margin-top: 30px;">
+                <a href="./LINE-Bot.pdf" target="_blank" class="nav-guide-btn" style="background: var(--sage-green);">
+                    <i class="fas fa-file-pdf"></i> 閱讀 LINE Bot 開發筆記
+                </a>
+            </div>
+        </article>
+
+        <article id="education">
+            <div class="post-meta">
+                <span>Background</span>
+                <span class="divider"></span>
+                <span>學習與成長</span>
+            </div>
+            <h2>人文的底蘊，<br>科技的視野。</h2>
+            <p>從文學出發，在 AI 的領域紮根。我始終相信，唯有理解人類語言的幽微，才能賦予機器更真切的智慧。</p>
+            
+            <div class="timeline">
+                <div class="timeline-item">
+                    <span class="time">Present</span>
+                    <span class="school">AI Lab</span>
+                    <span class="major">AI 研究與開發・探索智慧與工具的無限邊界</span>
+                </div>
+                <div class="timeline-item">
+                    <span class="time">University</span>
+                    <span class="school">世新大學</span>
+                    <span class="major">中國文學系・構築感性與敘事的文字力量</span>
+                </div>
+                <div class="timeline-item">
+                    <span class="time">High School</span>
+                    <span class="school">台南二中</span>
+                    <span class="major">求學時期的起點・奠定跨域探索的基礎</span>
+                </div>
+            </div>
+        </article>
+
+        <article id="project">
+            <div class="post-meta">
+                <span>Major Project</span>
+                <span class="divider"></span>
+                <span>智慧搜尋系統</span>
+            </div>
+            <div class="heading-with-btn">
+                <h2>智慧搜尋升級計畫：<br>讓資料庫擁有靈魂。</h2>
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 35px;">
+                    <i class="fas fa-hand-point-right floating-arrow"></i>
+                    <a href="./AI 關鍵詞搜索.html" class="nav-guide-btn">前往搜索 Demo</a>
+                </div>
+            </div>
+            <p>這是我的核心作品：將傳統的 Google Sheets 資料搜尋與 Gemini AI 結合。這不只是搜尋，更是一場對話。系統不再只是死板地比對關鍵字，而是學會了如何「解釋」與「推薦」。</p>
+            
+            <div class="feature-card">
+                <h3>核心實驗成果：</h3>
+                <ul>
+                    <li><b>Hybrid Mode 混合模式：</b>結合資料庫的精準度與 AI 的表達力，確保答案不瞎掰。</li>
+                    <li><b>GAS 深度整合：</b>利用 Apps Script 讓試算表成為最強大的自動化智慧中心。</li>
+                    <li><b>智慧建議列：</b>即便查無結果，系統也會溫柔地給予下一步的引導建議。</li>
+                </ul>
+            </div>
+        </article>
+
+        <article id="showcase">
+            <div class="post-meta">
+                <span>Archive</span>
+                <span class="divider"></span>
+                <span>小玩意合輯</span>
+            </div>
+            <h2>以前做的小玩意</h2>
+            <p>這些是我早期在探索移動端體驗與 AI 互動時開發的小作品。雖然它們看起來簡單，但每一件都代表了我對「互動美學」與「技術落地」的不同嘗試。</p>
+            
+            <div class="showcase-grid">
+                <div class="showcase-item">
+                    <h3>AI 萬事屋</h3>
+                    <p>最純粹的 AI 聊天室嘗試，專專注於流暢的移動端對話體驗。</p>
+                    <a href="https://starlit-cendol-420993.netlify.app/" target="_blank">EXPLORE PROJECT &rarr;</a>
+                </div>
+
+                <div class="showcase-item">
+                    <h3>靈感具象化</h3>
+                    <p>接入 Pollinations.ai 接口，嘗試將抽象的文字轉化為視覺藝術。</p>
+                    <a href="https://mellifluous-rabanadas-692799.netlify.app/" target="_blank">EXPLORE PROJECT &rarr;</a>
+                </div>
+
+                <div class="showcase-item">
+                    <h3>武俠世界</h3>
+                    <p>AI 推進劇本的敘事嘗試，從文字輸入演進到互動選項式劇情。</p>
+                    <a href="https://stellar-otter-cec848.netlify.app/" target="_blank">EXPLORE PROJECT &rarr;</a>
+                </div>
+
+                <div class="showcase-item">
+                    <h3>九死一生</h3>
+                    <p>純文字冒險遊戲。開發了自動化指令將 TXT 劇本無縫轉化為網頁。</p>
+                    <a href="https://animated-elf-66d849.netlify.app/" target="_blank">EXPLORE PROJECT &rarr;</a>
+                </div>
+
+                <div class="showcase-item">
+                    <h3>Flash 播放器</h3>
+                    <p>基於 Ruffle 引擎，試圖在移動端重現 Flash 時代的遊戲樂趣。</p>
+                    <a href="https://clever-madeleine-2524c7.netlify.app/" target="_blank">EXPLORE PROJECT &rarr;</a>
+                </div>
+            </div>
+        </article>
+
+        <article id="blog1">
+            <div class="post-meta">
+                <span>Philosophy</span>
+                <span class="divider"></span>
+                <span>2025.12.18</span>
+            </div>
+            <h2>科技的減法。</h2>
+            <p>在開發這些小玩意時，我一直在思考：我們真的需要那麼多複雜的按鈕嗎？最好的工具往往是隱形的。當使用者輸入一個模糊的詞彙，背後的 AI 默默地梳理邏輯並呈現最優解，這就是科技的「留白」。</p>
+            <p>減少雜訊，增加精準。這是我在 AI 開發路上始終堅持的文藝復興。</p>
+        </article>
+
+        <article id="contact">
+            <div class="post-meta">
+                <span>Connect</span>
+            </div>
+            <h2>交流與探索。</h2>
+            <p>如果你對這裡的某段話產生了共鳴，或者純粹想分享你生活中的綠意，歡迎與我聯絡。</p>
+            <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                <a href="mailto:winred101@gmail.com" class="contact-link">winred101@gmail.com</a>
+                <a href="https://docs.google.com/spreadsheets/d/1l1EcZ9m0nrZ8zlcD2T9qGtVZ7q4RWxJF__FVd1gbH5U/edit?gid=0#gid=0" target="_blank" class="nav-guide-btn" style="background: var(--accent-gold);">
+                    <i class="fas fa-table"></i> 點此查看資料表
+                </a>
+                <a href="./智慧資料庫查詢系統.html" class="nav-guide-btn" style="background: var(--forest-green);">
+                    <i class="fas fa-search-plus"></i> 智慧資料庫查詢
+                </a>
+            </div>
+        </article>
+    </main>
+
+    <script>
+        function toggleMenu() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            const toggle = document.querySelector('.menu-toggle');
+            
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+            
+            toggle.innerText = sidebar.classList.contains('active') ? 'CLOSE' : 'MENU';
+        }
+
+        document.querySelectorAll('.nav-list a').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 1024) {
+                    toggleMenu();
+                }
+            });
+        });
+
+        const observerOptions = { threshold: 0.1 };
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('article').forEach(article => {
+            observer.observe(article);
+        });
+    </script>
+</body>
+</html>

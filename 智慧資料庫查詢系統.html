@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智慧資料庫查詢系統</title>
+    <style>
+        /* 全局設定 */
+        body { font-family: "Microsoft JhengHei", sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; background-color: #f0f2f5; color: #333; }
+        h2 { text-align: center; color: #444; }
+        
+        /* 連結樣式 (新增) */
+        a { color: #007bff; text-decoration: none; word-break: break-all; }
+        a:hover { text-decoration: underline; }
+
+        /* 搜尋區塊 */
+        .search-box { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        input[type="text"] { width: 100%; padding: 15px; font-size: 16px; border: 2px solid #e1e4e8; border-radius: 8px; box-sizing: border-box; outline: none; transition: 0.3s; }
+        input[type="text"]:focus { border-color: #007bff; }
+        
+        /* 資料列表區塊 */
+        #displayArea { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; }
+        .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); transition: transform 0.2s; }
+        .card:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .card h3 { margin: 0 0 10px 0; color: #007bff; font-size: 1.2em; }
+        .card p { margin: 5px 0; font-size: 0.9em; color: #666; word-break: break-all; line-height: 1.5; }
+        .loading { text-align: center; color: #888; grid-column: 1 / -1; padding: 20px; }
+
+        /* --- AI 客服 CSS --- */
+        #chatBtn {
+            position: fixed; bottom: 30px; right: 30px;
+            width: 60px; height: 60px; border-radius: 50%;
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white; border: none; cursor: pointer; font-size: 28px;
+            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
+            z-index: 9999; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex; align-items: center; justify-content: center;
+        }
+        #chatBtn:hover { transform: scale(1.1); }
+
+        #chatBox {
+            display: none; position: fixed; bottom: 100px; right: 30px;
+            width: 320px; height: 450px;
+            background: white; border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            flex-direction: column; overflow: hidden; z-index: 9999;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        #chatHeader {
+            background: linear-gradient(135deg, #007bff, #0056b3); color: white;
+            padding: 15px; font-weight: bold; display: flex; justify-content: space-between; align-items: center;
+        }
+        #chatHistory {
+            flex: 1; padding: 15px; overflow-y: auto; background: #f9f9f9;
+            display: flex; flex-direction: column; gap: 10px; scroll-behavior: smooth;
+        }
+        #chatInputArea { padding: 10px; border-top: 1px solid #eee; display: flex; background: white; }
+        #chatMsgInput {
+            flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 20px;
+            outline: none; margin-right: 10px;
+        }
+        #sendBtn {
+            background: #007bff; color: white; border: none; padding: 8px 15px;
+            border-radius: 20px; cursor: pointer; font-weight: bold;
+        }
+        #sendBtn:hover { background: #0056b3; }
+
+        .msg { padding: 10px 14px; border-radius: 15px; max-width: 80%; font-size: 14px; line-height: 1.5; word-wrap: break-word; }
+        .user-msg { background: #007bff; color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
+        .ai-msg { background: #e9ecef; color: #333; align-self: flex-start; border-bottom-left-radius: 2px; }
+        .typing { font-size: 12px; color: #999; margin-left: 15px; margin-bottom: 5px; display: none; }
+    </style>
+</head>
+<body>
+
+    <h2>📦 智慧資料庫查詢系統</h2>
+    
+    <div class="search-box">
+        <input type="text" id="searchInput" placeholder="輸入關鍵字..." onkeyup="filterData()">
+    </div>
+
+    <div id="displayArea">
+        <div class="loading">正在讀取資料庫...</div>
+    </div>
+
+    <button id="chatBtn" onclick="toggleChat()">💬</button>
+    
+    <div id="chatBox">
+        <div id="chatHeader">
+            <span>AI 小幫手</span>
+            <span style="cursor:pointer; font-size:18px;" onclick="toggleChat()">✕</span>
+        </div>
+        <div id="chatHistory">
+            <div class="msg ai-msg">你好！我是 AI 助理，有關於資料庫的問題都可以問我喔！</div>
+        </div>
+        <div class="typing" id="typingIndicator">AI 正在思考中...</div>
+        <div id="chatInputArea">
+            <input type="text" id="chatMsgInput" placeholder="請輸入問題..." onkeypress="handleEnter(event)">
+            <button id="sendBtn" onclick="sendMessage()">送出</button>
+        </div>
+    </div>
+
+    <script>
+        // ★★★ 請將此處換成你部署後的網頁應用程式網址 ★★★
+        const scriptUrl = 'https://script.google.com/macros/s/AKfycbxWQv_8DfTwM15nNerFj7kH4iLlO1R2yM8862rJ9ZjfY816es5nsQgIb8d82-917oGX/exec'; 
+
+        // ★★★ 新增：自動將網址轉為超連結的函數 ★★★
+        function linkify(inputText) {
+            // 確保輸入是字串，避免數字報錯
+            let text = String(inputText);
+            // 網址正規表達式 (偵測 http 或 https 開頭)
+            var urlRegex = /(https?:\/\/[^\s]+)/g;
+            return text.replace(urlRegex, function(url) {
+                return '<a href="' + url + '" target="_blank">' + url + '</a>';
+            });
+        }
+
+        let allData = [];
+
+        // --- A. 初始化：產生或讀取 User ID ---
+        let userId = localStorage.getItem('chat_user_id');
+        if (!userId) {
+            userId = 'user_' + Math.random().toString(36).substr(2, 8);
+            localStorage.setItem('chat_user_id', userId);
+        }
+        console.log("當前用戶 ID:", userId);
+
+        // --- B. 初始化：讀取資料庫 (GET) ---
+        fetch(scriptUrl)
+            .then(res => res.json())
+            .then(data => {
+                if(data.length > 1) {
+                    allData = data.slice(1);
+                    renderData(allData);
+                } else {
+                    document.getElementById('displayArea').innerHTML = '<div class="loading">資料庫目前為空</div>';
+                }
+            })
+            .catch(err => {
+                document.getElementById('displayArea').innerHTML = '<div class="loading">讀取失敗，請檢查網址設定。</div>';
+                console.error(err);
+            });
+
+        // 渲染資料卡片
+        function renderData(data) {
+            const display = document.getElementById('displayArea');
+            display.innerHTML = '';
+            
+            if (data.length === 0) {
+                display.innerHTML = '<div class="loading">找不到相符資料</div>';
+                return;
+            }
+
+            data.forEach(row => {
+                // ★ 修改點：在顯示資料前，先通過 linkify 處理
+                const content = row.slice(1).map(text => `<span>${linkify(text)}</span>`).join(' | ');
+                const item = `
+                    <div class="card">
+                        <h3>${row[0]}</h3>
+                        <p>${content}</p>
+                    </div>
+                `;
+                display.innerHTML += item;
+            });
+        }
+
+        // 搜尋功能
+        function filterData() {
+            const keyword = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = allData.filter(row => {
+                return row.some(cell => String(cell).toLowerCase().includes(keyword));
+            });
+            renderData(filtered);
+        }
+
+        // --- C. 聊天功能 (POST) ---
+        function toggleChat() {
+            const chatBox = document.getElementById('chatBox');
+            const isVisible = chatBox.style.display === 'flex';
+            chatBox.style.display = isVisible ? 'none' : 'flex';
+            if (!isVisible) document.getElementById('chatMsgInput').focus();
+        }
+
+        function handleEnter(e) {
+            if (e.key === 'Enter') sendMessage();
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('chatMsgInput');
+            const msg = input.value.trim();
+            if (!msg) return;
+
+            // 1. UI 顯示用戶訊息
+            appendMsg(msg, 'user-msg');
+            input.value = '';
+            
+            // 2. 顯示 Loading
+            const typingIndicator = document.getElementById('typingIndicator');
+            typingIndicator.style.display = 'block';
+            scrollToBottom();
+
+            // 3. 發送給 GAS
+            fetch(scriptUrl, {
+                method: 'POST',
+                body: JSON.stringify({ 
+                    message: msg,
+                    userId: userId 
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                typingIndicator.style.display = 'none';
+                appendMsg(data.reply, 'ai-msg');
+            })
+            .catch(err => {
+                typingIndicator.style.display = 'none';
+                appendMsg("連線錯誤，請稍後再試。", 'ai-msg');
+                console.error(err);
+            });
+        }
+
+        function appendMsg(text, className) {
+            const historyDiv = document.getElementById('chatHistory');
+            const div = document.createElement('div');
+            div.className = `msg ${className}`;
+            
+            // ★ 修改點：使用 innerHTML 才能顯示連結，並使用 linkify 處理
+            div.innerHTML = linkify(text);
+            
+            historyDiv.appendChild(div);
+            scrollToBottom();
+        }
+
+        function scrollToBottom() {
+            const historyDiv = document.getElementById('chatHistory');
+            historyDiv.scrollTop = historyDiv.scrollHeight;
+        }
+    </script>
+</body>
+</html>

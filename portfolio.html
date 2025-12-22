@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>秉鈞 | 個人作品集與部落格</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Noto+Sans+TC:wght@400;700;900&display=swap');
+        body {
+            font-family: 'Inter', 'Noto Sans TC', sans-serif;
+            background-color: #f7f9fc;
+            color: #1f2937;
+            padding-bottom: 6rem; 
+        }
+        html {
+            scroll-behavior: smooth;
+        }
+        .hero-bg {
+            background-color: #1e3a8a;
+            background-image: radial-gradient(circle at 100% 0%, #172554 10%, #1e3a8a 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .emerald-text {
+            color: #059669;
+        }
+        .nav-link {
+            transition: all 0.3s ease;
+        }
+
+        /* --- 魔法小字樣樣式 --- */
+        .magic-text {
+            font-size: 0.75rem;
+            color: #f59e0b;
+            opacity: 0.55;
+            font-style: italic;
+            letter-spacing: 0.05em;
+            transition: all 0.6s ease;
+            user-select: none;
+            display: inline-block;
+            text-shadow: 0 0 4px rgba(245, 158, 11, 0.2);
+        }
+        .magic-text:hover {
+            opacity: 1;
+            transform: translateY(-2px) scale(1.05);
+            text-shadow: 0 0 15px rgba(245, 158, 11, 0.6);
+        }
+
+        /* --- 小王子主題精靈動畫 --- */
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-15px) rotate(8deg); }
+        }
+        .sprite-float {
+            animation: float 4s ease-in-out infinite;
+        }
+        .sprite-container {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            z-index: 100;
+            cursor: pointer;
+        }
+        .star-sparkle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #fde047;
+            border-radius: 50%;
+            animation: sparkle 2s infinite;
+        }
+        @keyframes sparkle {
+            0%, 100% { opacity: 0; transform: scale(0.5); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        .speech-bubble {
+            position: absolute;
+            bottom: 110%;
+            right: 0;
+            margin-bottom: 20px;
+            width: 240px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+            border-radius: 1.25rem;
+            padding: 1.25rem;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            border: 2px solid #10b981;
+            opacity: 0;
+            transform: scale(0.9) translateY(10px);
+            pointer-events: none;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .speech-bubble.active {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+            pointer-events: auto;
+        }
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            right: 30px;
+            border-width: 12px;
+            border-style: solid;
+            border-color: #10b981 transparent transparent transparent;
+        }
+
+        /* --- Messenger 與 Line 氣泡對話框樣式 --- */
+        #messenger-bubble-box, #line-bubble-box {
+            position: absolute;
+            top: 50%;
+            left: calc(100% + 20px);
+            transform: translateY(-50%) scale(0.9);
+            width: 200px;
+            background: white;
+            border-radius: 1.25rem;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+            z-index: 50;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: none;
+        }
+        #messenger-bubble-box { border: 2px solid #3b82f6; }
+        #line-bubble-box { border: 2px solid #06c755; }
+
+        #messenger-bubble-box.active, #line-bubble-box.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(-50%) scale(1);
+            pointer-events: auto;
+        }
+
+        #messenger-bubble-box::after, #line-bubble-box::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            right: 100%;
+            margin-top: -10px;
+            border-width: 10px;
+            border-style: solid;
+        }
+        #messenger-bubble-box::after { border-color: transparent #3b82f6 transparent transparent; }
+        #line-bubble-box::after { border-color: transparent #06c755 transparent transparent; }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <header class="sticky top-0 z-50 bg-white shadow-md border-b border-gray-100">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-4">
+                <a href="index.html" class="flex items-center gap-1 px-3 py-1.5 bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 transition duration-300 font-bold text-sm">
+                    <i data-lucide="home" class="w-4 h-4"></i> 首頁
+                </a>
+                <div class="h-6 w-px bg-gray-200 hidden sm:block"></div>
+                <div class="flex items-center space-x-3">
+                    <a href="index.html" class="block">
+                        <img src="snow.jpg" 
+                             onerror="this.onerror=null; this.src='https://placehold.co/400x400/059669/ffffff?text=BJ';" 
+                             alt="秉鈞 頭像" 
+                             class="w-8 h-8 object-cover rounded-full ring-2 ring-emerald-300">
+                    </a>
+                    <a href="index.html" class="text-xl font-extrabold text-emerald-600 tracking-tight hidden lg:block">
+                        秉鈞 | 數位互動鑄造師
+                    </a>
+                </div>
+            </div>
+            
+            <nav class="hidden md:flex items-center space-x-4 lg:space-x-8">
+                <a href="#about" class="nav-link text-gray-600 hover:text-emerald-600 font-medium">關於我</a>
+                <a href="#portfolio" class="nav-link text-gray-600 hover:text-emerald-600 font-medium">作品集</a>
+                <a href="#blog" class="nav-link text-gray-600 hover:text-emerald-600 font-medium">部落格</a>
+                <a href="#contact" class="nav-link text-gray-600 hover:text-emerald-600 font-medium">聯絡</a>
+                
+                <div class="flex items-center space-x-2">
+                    <a href="forest.html" class="nav-link flex items-center gap-1 px-4 py-1.5 bg-emerald-50 text-emerald-700 rounded-full border border-emerald-200 hover:bg-emerald-600 hover:text-white font-bold transition duration-300">
+                        <i data-lucide="sparkles" class="w-4 h-4"></i> 進入森林
+                    </a>
+                    <a href="dream_weaver.html" class="nav-link flex items-center gap-1 px-4 py-1.5 bg-pink-50 text-pink-700 rounded-full border border-pink-200 hover:bg-pink-600 hover:text-white font-bold shadow-lg shadow-pink-200/50 transition duration-300">
+                        <i data-lucide="terminal" class="w-4 h-4"></i> 織夢空間
+                    </a>
+                </div>
+            </nav>
+
+            <div class="md:hidden flex items-center space-x-2">
+                <a href="index.html" class="p-2 text-gray-600"><i data-lucide="home" class="w-6 h-6"></i></a>
+                <a href="dream_weaver.html" class="p-2 text-pink-600"><i data-lucide="terminal" class="w-6 h-6"></i></a>
+                <a href="forest.html" class="p-2 text-emerald-600"><i data-lucide="sparkles" class="w-6 h-6"></i></a>
+            </div>
+        </div>
+    </header>
+
+    <div class="sprite-container" onclick="toggleSpriteMessage()">
+        <div id="sprite-bubble" class="speech-bubble shadow-emerald-200/50">
+            <p id="sprite-text" class="text-sm text-gray-700 font-medium italic">「最重要的東西，用眼睛是看不見的... 但在秉鈞的作品裡，你可以感受到靈魂。」</p>
+            <div class="mt-2 text-[10px] text-emerald-500 font-bold uppercase tracking-tighter">點擊與我對話</div>
+        </div>
+        
+        <div class="sprite-float relative group">
+            <div class="star-sparkle" style="top:-10px; left:10px;"></div>
+            <div class="star-sparkle" style="bottom:-5px; right:5px; animation-delay: 1s;"></div>
+            <div class="bg-emerald-500 p-4 rounded-full shadow-2xl shadow-emerald-500/40 border-2 border-white relative overflow-hidden">
+                <svg xmlns="http://www.w3.org/2000/svg" width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M7 11L3 8L5 15L12 21L19 15L21 8L17 11L12 9L7 11Z" fill="white" fill-opacity="0.2"></path>
+                    <path d="M12 2L13.5 6H17.5L14.5 8.5L16 12.5L12 10L8 12.5L9.5 8.5L6.5 6H10.5L12 2Z"></path>
+                </svg>
+            </div>
+            <div class="absolute inset-0 rounded-full bg-emerald-400 opacity-0 group-hover:opacity-20 animate-ping"></div>
+        </div>
+    </div>
+
+    <main>
+        <section id="about" class="pt-16 pb-20 md:pt-24 md:pb-32 hero-bg text-white">
+            <svg class="absolute inset-0 w-full h-full z-0 opacity-30" viewBox="0 0 100 100" preserveAspectRatio="none">
+                <circle cx="10" cy="50" r="0.5" fill="#93c5fd" /> 
+                <circle cx="80" cy="20" r="0.8" fill="#93c5fd" />
+                <circle cx="50" cy="85" r="0.6" fill="#93c5fd" />
+                <circle cx="30" cy="10" r="0.4" fill="#93c5fd" />
+                <circle cx="95" cy="70" r="0.7" fill="#93c5fd" />
+            </svg>
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                <div class="flex flex-col md:flex-row items-center gap-10">
+                    <div class="md:w-3/5 text-center md:text-left">
+                        <div class="flex flex-wrap justify-center md:justify-start gap-2 mb-6">
+                            <span class="px-3 py-1 bg-emerald-500/20 border border-emerald-400/50 rounded-full text-emerald-300 text-xs font-bold tracking-widest uppercase">#AI應用整合</span>
+                            <span class="px-3 py-1 bg-emerald-500/20 border border-emerald-400/50 rounded-full text-emerald-300 text-xs font-bold tracking-widest uppercase">#互動網頁開發</span>
+                        </div>
+                        <h1 class="text-5xl md:text-7xl font-extrabold leading-tight mb-6">
+                            歡迎來到<br><span class="text-emerald-400">秉鈞的個人網頁</span>
+                        </h1>
+                        <p class="text-lg text-blue-200 mb-4 max-w-2xl mx-auto md:mx-0">
+                            我致力於將 **AI 智能應用、網站開發與數據分析** 三大領域無縫整合。技術只是工具，情感與數據的連結才是專案的靈魂。
+                        </p>
+                        <div class="mb-8 h-4">
+                            <span class="magic-text">「所有的大人都曾經是小孩，雖然，只有少數人記得。」——《小王子》</span>
+                        </div>
+                        <div class="flex flex-col sm:flex-row items-center justify-center md:justify-start gap-4">
+                            <a href="#portfolio" class="w-full sm:w-auto inline-flex justify-center items-center bg-emerald-500 text-white font-bold py-3.5 px-8 rounded-full shadow-lg shadow-emerald-400/50 hover:bg-emerald-600 transition duration-300 transform hover:scale-105">
+                                查看精選作品
+                                <i data-lucide="arrow-right" class="ml-2 w-5 h-5"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="md:w-2/5 flex justify-center md:justify-end">
+                        <img src="snow.jpg" 
+                             onerror="this.onerror=null; this.src='https://placehold.co/400x400/059669/ffffff?text=BJ';" 
+                             alt="秉鈞" 
+                             class="w-64 h-64 md:w-96 md:h-96 object-cover rounded-3xl shadow-2xl ring-4 ring-sky-300/20 transition duration-500 hover:rotate-2 hover:scale-105">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="portfolio" class="py-20 bg-gray-50">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16">
+                    <h2 class="text-4xl font-bold mb-4 text-gray-900 tracking-tight">我的精選作品集</h2>
+                    <div class="w-20 h-1.5 bg-emerald-500 mx-auto rounded-full"></div>
+                    <span class="magic-text mt-4">「只有用心靈才能看得清，真正重要的東西，用眼睛是看不見的。」</span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 items-stretch">
+                    <a href="危險的試探：意外之夜的禁忌.pdf" target="_blank" class="block group h-full">
+                        <div class="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden h-full flex flex-col transition-all duration-500 group-hover:shadow-2xl group-hover:-translate-y-3">
+                            <div class="relative overflow-hidden border-b-2 border-gray-100">
+                                <img src="image_project1.jpg" 
+                                     onerror="this.onerror=null; this.src='https://placehold.co/600x400/ccfbf1/1f2937?text=敘事結構分析';"
+                                     alt="敘事結構分析" 
+                                     class="w-full h-56 object-cover transition duration-700 group-hover:scale-110">
+                            </div>
+                            <div class="p-8 flex-grow flex flex-col">
+                                <span class="text-xs font-bold text-emerald-600 uppercase tracking-widest mb-2 block">敘事設計 / PDF 報告</span>
+                                <h3 class="text-2xl font-bold mb-3 text-gray-900 group-hover:text-emerald-700 transition-colors duration-300">敘事結構與情感張力分析</h3>
+                                <p class="text-gray-500 text-sm leading-relaxed mb-4">展示對長篇敘事作品的結構拆解、角色弧線分析和高潮節奏控制的能力。</p>
+                                <span class="magic-text mt-auto text-right">「最重要的東西，往往就在最普通的地方。」——《快樂王子》</span>
+                            </div>
+                        </div>
+                    </a>
+
+                    <a href="https://docs.google.com/spreadsheets/d/14eSDMyNatggwYnB2VmmUpcEQfAQrJgjDCwax2ETpKog/edit?usp=drive_link" target="_blank" class="block group h-full">
+                        <div class="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden h-full flex flex-col transition-all duration-500 group-hover:shadow-2xl group-hover:-translate-y-3">
+                            <div class="relative overflow-hidden border-b-2 border-gray-100">
+                                <img src="image_project2.jpg" 
+                                     onerror="this.onerror=null; this.src='https://placehold.co/600x400/ccfbf1/1f2937?text=AI+數據儀表板';" 
+                                     alt="數據儀表板" 
+                                     class="w-full h-56 object-cover transition duration-700 group-hover:scale-110">
+                            </div>
+                            <div class="p-8 flex-grow flex flex-col">
+                                <span class="text-xs font-bold text-emerald-600 uppercase tracking-widest mb-2 block">數據建模 / Google Sheets</span>
+                                <h3 class="text-2xl font-bold mb-3 text-gray-900 group-hover:text-emerald-700 transition-colors duration-300">AI 驅動的營運數據儀表板</h3>
+                                <p class="text-gray-500 text-sm leading-relaxed mb-4">運用數據分析和 AI 輔助，對使用者行為進行深度追蹤與預測，提供精準建議。</p>
+                                <span class="magic-text mt-auto text-right">「你在你的玫瑰花身上耗費的時間，使得你的玫瑰花變得如此重要。」</span>
+                            </div>
+                        </div>
+                    </a>
+
+                    <a href="forest.html" class="block group h-full">
+                        <div class="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden h-full flex flex-col transition-all duration-500 group-hover:shadow-2xl group-hover:-translate-y-3">
+                            <div class="relative overflow-hidden border-b-2 border-gray-100">
+                                <img src="forest.png" 
+                                     onerror="this.onerror=null; this.src='https://placehold.co/600x400/022c22/ffffff?text=星辰森林導覽圖';" 
+                                     alt="星辰森林導覽圖" 
+                                     class="w-full h-56 object-cover transition duration-700 group-hover:scale-110">
+                            </div>
+                            <div class="p-8 flex-grow flex flex-col">
+                                <span class="text-xs font-bold text-emerald-600 uppercase tracking-widest mb-2 block">沉浸式體驗 / Web 互動</span>
+                                <h3 class="text-2xl font-bold mb-3 text-gray-900 group-hover:text-emerald-700 transition-colors duration-300">星辰森林：全方位互動空間</h3>
+                                <p class="text-gray-500 text-sm leading-relaxed mb-4">整合 Google Gemini AI 打造具生命力的互動。在數位迷霧中展開感官探索。</p>
+                                <span class="magic-text mt-auto text-right">「馴養，就是建立連結。」—— 來到秉鈞的森林建立連結吧。</span>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section id="blog" class="py-20 bg-white">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16">
+                    <h2 class="text-4xl font-bold mb-4 text-gray-900 tracking-tight uppercase">數位敘事實驗室</h2>
+                    <div class="w-20 h-1.5 bg-emerald-500 mx-auto rounded-full"></div>
+                    <p class="mt-4 text-gray-500 italic">記錄關於賽博龐克與神經接口的技術實踐與感官對白。</p>
+                    <span class="magic-text mt-2 block">「秉鈞的作品，是讓靈魂留在數位世間的證明。」</span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+                    <a href="dream_weaver.html" class="block group">
+                        <div class="bg-gray-50 p-8 rounded-2xl border border-gray-100 transition-all duration-500 hover:bg-white hover:shadow-xl hover:translate-x-3 border-l-0 hover:border-l-[12px] hover:border-l-emerald-500 group relative overflow-hidden h-full">
+                            <p class="text-sm text-emerald-600 font-bold mb-4 flex items-center gap-2">
+                                <i data-lucide="cpu" class="w-4 h-4"></i> 織夢者系統 · 賽博美學
+                            </p>
+                            <h3 class="text-2xl font-bold mb-4 text-gray-900 group-hover:text-emerald-800 transition-colors">織夢者藍圖：賽博龐克虛實共感終極宣言</h3>
+                            <p class="text-gray-600 mb-6 leading-relaxed">點擊探索。我正編織下一代文明的神經接口。以技術為槳，航向虛實共感的彼岸。這是一場關於解構現實、同步神經連結的終極數位宣言，在 Dreamweaver_OS 中重塑靈魂。🦊</p>
+                            <span class="magic-text">「科技提供的，正是親密感。」✨</span>
+                        </div>
+                    </a>
+
+                    <a href="LLM提示工程從入門到精通.pdf" target="_blank" class="block group">
+                        <div class="bg-gray-50 p-8 rounded-2xl border border-gray-100 transition-all duration-500 hover:bg-white hover:shadow-xl hover:translate-x-3 border-l-0 hover:border-l-[12px] hover:border-l-emerald-500 group relative overflow-hidden h-full">
+                            <p class="text-sm text-emerald-600 font-bold mb-4 flex items-center gap-2">
+                                <i data-lucide="file-text" class="w-4 h-4"></i> 實戰手冊 · 下載閱讀
+                            </p>
+                            <h3 class="text-2xl font-bold mb-4 text-gray-900 group-hover:text-emerald-800 transition-colors">角色靈魂定義：微表情與物理層次管理</h3>
+                            <p class="text-gray-600 mb-6 leading-relaxed">點擊下載。解讀視覺回饋如何觸發「湧現式敘事」。從一張領帶微歪的意外圖像衍生高張力情節，並運用身分反轉的空間建模與情緒分級指令，鑄造沉浸感十足的角色氣場。</p>
+                            <span class="magic-text">「真正的鑄造師，會掃描每一張圖，尋找可以轉化為敘事動能的異常點。」✨</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </section>
+        
+        <section id="contact" class="py-24 bg-blue-900 text-white relative">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+                <h2 class="text-5xl font-black mb-6 tracking-tight">有專案想合作嗎？</h2>
+                <p class="text-xl text-blue-200 mb-8 max-w-2xl mx-auto">「如果你馴養了我，我們就會彼此需要。」—— 歡迎聯絡秉鈞。</p>
+                
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-6">
+                    <a href="mailto:your.email@example.com" class="inline-flex items-center gap-3 bg-emerald-500 text-white font-black py-4 px-12 rounded-full shadow-2xl hover:bg-emerald-600 transition duration-300 transform hover:scale-105 text-lg">
+                        <i data-lucide="mail" class="w-6 h-6"></i> 發送電子郵件
+                    </a>
+                    
+                    <div class="flex gap-6">
+                        <div class="relative">
+                            <div id="messenger-bubble-box">
+                                <div class="p-2">
+                                    <div class="flex justify-between items-center mb-1 px-2 pt-1">
+                                        <span class="text-[9px] font-bold text-blue-600 uppercase tracking-widest">Connect_Now</span>
+                                        <button onclick="toggleMessengerBubble()" class="text-gray-400 hover:text-gray-600"><i data-lucide="x" class="w-3 h-3"></i></button>
+                                    </div>
+                                    <div class="bg-gray-50 rounded-xl border border-gray-100 overflow-hidden">
+                                        <img src="messager.png" 
+                                             onerror="this.onerror=null; this.src='https://placehold.co/400x400/3b82f6/ffffff?text=Messenger';" 
+                                             alt="Messenger QR/Info" 
+                                             class="w-full h-auto">
+                                    </div>
+                                    <div class="text-center py-2">
+                                        <span class="magic-text !opacity-80 !text-[9px]">「透過這裡找到我。」</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <button onclick="toggleMessengerBubble(event)" class="inline-flex items-center justify-center w-16 h-16 bg-blue-500 text-white rounded-full shadow-2xl hover:bg-blue-600 transition duration-300 transform hover:scale-110 group">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.145 2 11.258c0 2.91 1.453 5.502 3.734 7.215.195.147.313.376.313.621v2.541a.5.5 0 0 0 .744.437l2.846-1.626c.162-.093.352-.128.54-.097a11.144 11.144 0 0 0 1.823.15c5.523 0 10-4.145 10-9.258C22 6.145 17.523 2 12 2zm1.061 12.316l-2.454-2.614-4.793 2.614 5.27-5.592 2.454 2.614 4.793-2.614-5.27 5.592z"/></svg>
+                            </button>
+                        </div>
+
+                        <div class="relative">
+                            <div id="line-bubble-box">
+                                <div class="p-2">
+                                    <div class="flex justify-between items-center mb-1 px-2 pt-1">
+                                        <span class="text-[9px] font-bold text-[#06c755] uppercase tracking-widest">Line_Contact</span>
+                                        <button onclick="toggleLineBubble()" class="text-gray-400 hover:text-gray-600"><i data-lucide="x" class="w-3 h-3"></i></button>
+                                    </div>
+                                    <div class="bg-gray-50 rounded-xl border border-gray-100 overflow-hidden">
+                                        <img src="line.JPG" 
+                                             onerror="this.onerror=null; this.src='https://placehold.co/400x400/06c755/ffffff?text=Line+QR';" 
+                                             alt="Line QR" 
+                                             class="w-full h-auto">
+                                    </div>
+                                    <div class="text-center py-2">
+                                        <span class="magic-text !opacity-80 !text-[9px]">「加入好友，即時通訊。」</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <button onclick="toggleLineBubble(event)" class="inline-flex items-center justify-center w-16 h-16 bg-[#06c755] text-white rounded-full shadow-2xl hover:bg-[#05a346] transition duration-300 transform hover:scale-110 group">
+                                <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor"><path d="M24 10.304c0-4.587-4.69-8.32-10.455-8.32C7.78 1.984 3.09 5.717 3.09 10.304c0 4.108 3.725 7.55 8.766 8.213.34.073.805.225.922.516.105.263.07.675.034.94l-.15 1.103c-.046.333-.213 1.302.919.71 1.13-.59 6.1-3.593 8.318-6.146 1.543-1.624 2.1-3.328 2.1-5.336zM8.51 12.873H6.425a.396.396 0 0 1-.397-.396V7.71a.396.396 0 0 1 .397-.397h.396a.396.396 0 0 1 .396.397v4.37h1.294a.396.396 0 0 1 .396.396v.397a.396.396 0 0 1-.396.396zM10.84 12.873h-.397a.396.396 0 0 1-.396-.396V7.71a.396.396 0 0 1 .396-.397h.397a.396.396 0 0 1 .396.397v4.766a.396.396 0 0 1-.396.396zm6.216 0h-.397a.4.4 0 0 1-.365-.245L14.73 9.42v3.056a.396.396 0 0 1-.397.396h-.396a.396.396 0 0 1-.397-.396V7.71a.396.396 0 0 1 .397-.397h.396c.15 0 .285.083.353.214l1.574 3.204V7.71a.396.396 0 0 1 .397-.397h.396a.396.396 0 0 1 .397.397v5.163a.396.396 0 0 1-.397.396zm4.18-1.558h-1.294v1.162a.396.396 0 0 1-.397.396h-.396a.396.396 0 0 1-.397-.396V7.71a.396.396 0 0 1 .397-.397h2.085a.396.396 0 0 1 .397.397v.396a.396.396 0 0 1-.397.397h-1.294v1.144h1.294a.396.396 0 0 1 .397.396v.397a.396.396 0 0 1-.397.396z"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-12 opacity-30">
+                    <span class="magic-text block">「再見了。」精靈說。「這是我的秘密。這是一個非常簡單的秘密...」</span>
+                    <span class="magic-text block mt-2">「死亡是為了讓靈魂回到星辰。而作品，是讓靈魂留在世間。」</span>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-900 text-white py-12 border-t border-white/5">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <p class="text-gray-500 text-sm mb-2">&copy; 2025 秉鈞。保留所有權利。</p>
+            <div class="flex justify-center items-center gap-2 mt-4">
+                 <span class="magic-text">由 AI 與 秉鈞 共同鑄造的數位夢想。</span>
+            </div>
+        </div>
+    </footer>
+
+    <div id="quick-nav" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 md:hidden bg-emerald-600/90 backdrop-blur-md p-3 rounded-full shadow-2xl flex space-x-4 border border-emerald-400/30">
+        <a href="index.html" class="nav-link text-white p-2 rounded-full hover:bg-emerald-700" title="返回首頁"><i data-lucide="home" class="w-5 h-5"></i></a>
+        <a href="#about" class="nav-link text-white p-2 rounded-full hover:bg-emerald-700"><i data-lucide="user" class="w-5 h-5"></i></a>
+        <a href="#portfolio" class="nav-link text-white p-2 rounded-full hover:bg-emerald-700"><i data-lucide="briefcase" class="w-5 h-5"></i></a>
+        <a href="#blog" class="nav-link text-white p-2 rounded-full hover:bg-emerald-700"><i data-lucide="feather" class="w-5 h-5"></i></a>
+        <a href="dream_weaver.html" class="nav-link text-pink-300 p-2 rounded-full hover:bg-pink-700" title="進入織夢空間"><i data-lucide="terminal" class="w-5 h-5"></i></a>
+        <a href="forest.html" class="nav-link text-sky-200 p-2 rounded-full hover:bg-emerald-700"><i data-lucide="sparkles" class="w-5 h-5"></i></a>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        function toggleMessengerBubble(e) {
+            if (e) e.stopPropagation();
+            const bubble = document.getElementById('messenger-bubble-box');
+            const lineBubble = document.getElementById('line-bubble-box');
+            lineBubble.classList.remove('active');
+            bubble.classList.toggle('active');
+        }
+
+        function toggleLineBubble(e) {
+            if (e) e.stopPropagation();
+            const bubble = document.getElementById('line-bubble-box');
+            const messengerBubble = document.getElementById('messenger-bubble-box');
+            messengerBubble.classList.remove('active');
+            bubble.classList.toggle('active');
+        }
+
+        document.addEventListener('click', (e) => {
+            const messengerBubble = document.getElementById('messenger-bubble-box');
+            const lineBubble = document.getElementById('line-bubble-box');
+            if (messengerBubble.classList.contains('active') && !messengerBubble.contains(e.target)) {
+                messengerBubble.classList.remove('active');
+            }
+            if (lineBubble.classList.contains('active') && !lineBubble.contains(e.target)) {
+                lineBubble.classList.remove('active');
+            }
+        });
+
+        // --- 小王子主題精靈互動邏輯 ---
+        const spritePhrases = [
+            "「每個大人都曾經是小孩，雖然只有少數人記得。」✨",
+            "「只有用心靈才能看得清。」秉鈞的互動設計也是如此。🦊",
+            "「你在你的玫瑰花身上耗費的時間，使得你的玫瑰花變得如此重要。」🌹",
+            "這座數位森林裡藏著很多祕密，點擊「星辰森林」去看看吧！⭐",
+            "「馴養，就是建立連結。」期待與您的專案建立連結。🤝",
+            "我是從 B612 星球來的數位小狐狸，專門守護秉鈞的作品！",
+            "「如果有人愛上了這億萬顆星星中唯一的一朵花，這就足以讓他感到幸福。」",
+            "正在找尋沈浸式體驗的解藥嗎？問問秉鈞就對了！🎯"
+        ];
+
+        let bubbleTimeout;
+        function toggleSpriteMessage() {
+            const bubble = document.getElementById('sprite-bubble');
+            const text = document.getElementById('sprite-text');
+            const randomPhrase = spritePhrases[Math.floor(Math.random() * spritePhrases.length)];
+            text.innerText = randomPhrase;
+            bubble.classList.add('active');
+            clearTimeout(bubbleTimeout);
+            bubbleTimeout = setTimeout(() => { bubble.classList.remove('active'); }, 6000);
+        }
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const id = entry.target.getAttribute('id');
+                    document.querySelectorAll('#quick-nav a').forEach(link => {
+                        const href = link.getAttribute('href');
+                        if (href === `#${id}`) {
+                            link.classList.add('text-sky-300');
+                        } else if (href && href.startsWith('#')) {
+                            link.classList.remove('text-sky-300');
+                        }
+                    });
+                }
+            });
+        }, { threshold: 0.5 });
+        document.querySelectorAll('main section').forEach(section => observer.observe(section));
+    </script>
+</body>
+</html>

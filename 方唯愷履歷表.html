@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>方唯愷 | 個人成果展示</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
+        
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f8fafc;
+            scroll-behavior: smooth;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -9px;
+            top: 0;
+            width: 18px;
+            height: 18px;
+            background-color: #3b82f6;
+            border-radius: 50%;
+            border: 4px solid #fff;
+            box-shadow: 0 0 0 2px #3b82f6;
+        }
+
+        .timeline-border {
+            border-left: 2px solid #e2e8f0;
+        }
+
+        .hover-card {
+            transition: all 0.3s ease;
+        }
+
+        .hover-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .img-grid img {
+            transition: transform 0.3s ease;
+            cursor: zoom-in;
+        }
+
+        .img-grid img:hover {
+            transform: scale(1.05);
+            z-index: 10;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar { width: 100%; height: auto; position: relative; }
+            main { margin-left: 0 !important; }
+        }
+    </style>
+</head>
+<body class="text-slate-800">
+
+    <aside class="sidebar fixed left-0 top-0 h-screen w-72 bg-slate-900 text-white p-8 flex flex-col z-50">
+        <div class="text-center mb-10">
+            <div class="w-32 h-32 bg-slate-700 rounded-full mx-auto mb-4 border-4 border-blue-500 overflow-hidden">
+                <img src="./230603.jpg" alt="方唯愷" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/150?text=KAI'">
+            </div>
+            <h1 class="text-2xl font-bold tracking-wider">方唯愷</h1>
+            <p class="text-blue-400 text-sm mt-2">財務金融背景 | 組織行政專家</p>
+        </div>
+
+        <nav class="space-y-2 flex-grow">
+            <a href="#about" class="block py-3 px-4 rounded hover:bg-slate-800 transition"><i class="fas fa-user-circle mr-3"></i>關於我</a>
+            <a href="#education" class="block py-3 px-4 rounded hover:bg-slate-800 transition"><i class="fas fa-graduation-cap mr-3"></i>學歷優勢</a>
+            <a href="#experience" class="block py-3 px-4 rounded hover:bg-slate-800 transition"><i class="fas fa-briefcase mr-3"></i>工作精華</a>
+            <a href="#skills" class="block py-3 px-4 rounded hover:bg-slate-800 transition"><i class="fas fa-tools mr-3"></i>核心能力</a>
+            
+            <a href="https://drive.google.com/drive/folders/154mDC7Yyh7G1a9TtyqFk5VYgWmTzrw86" target="_blank" class="block py-3 px-4 rounded bg-blue-600 hover:bg-blue-700 transition mt-6 font-bold text-center shadow-lg"><i class="fas fa-folder-open mr-3"></i>作品集</a>
+            
+            <a href="./小恐龍冒險OK.html" class="block py-3 px-4 rounded bg-emerald-600 hover:bg-emerald-700 transition mt-2 font-bold text-center shadow-lg"><i class="fas fa-dragon mr-3"></i>小恐龍冒險</a>
+        </nav>
+
+        <div class="mt-auto pt-6 border-t border-slate-700 text-xs text-slate-400">
+            <p><i class="fas fa-envelope mr-2"></i> ss123bb40@gmail.com</p>
+            <p class="mt-2"><i class="fas fa-location-dot mr-2"></i> 台灣，台南市</p>
+        </div>
+    </aside>
+
+    <main class="ml-72 p-8 lg:p-16">
+        
+        <section id="about" class="mb-20 max-w-4xl">
+            <h2 class="text-3xl font-bold mb-8 flex items-center">
+                <span class="w-10 h-1 bg-blue-600 mr-4"></span>
+                關於我
+            </h2>
+            <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 leading-relaxed text-lg">
+                我是方唯愷，畢業於大葉大學財務金融學系。我深信「專業邏輯」與「執行效率」是職場的核心價值。透過<span class="text-blue-600 font-medium">財務金融</span>的專業訓練，我具備嚴謹的數據敏感度與風險意識；在豐富的<span class="text-blue-600 font-medium">營運管理</span>與<span class="text-blue-600 font-medium">組織行政</span>經歷中，我展現了優異的協調溝通力與解決問題的實戰經驗。
+            </div>
+        </section>
+
+        <section id="education" class="mb-20 max-w-4xl">
+            <h2 class="text-3xl font-bold mb-8 flex items-center">
+                <span class="w-10 h-1 bg-blue-600 mr-4"></span>
+                學歷優勢：財務金融專業
+            </h2>
+            <div class="bg-gradient-to-br from-blue-50 to-white p-8 rounded-2xl shadow-sm border border-blue-100">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h3 class="text-2xl font-bold text-slate-900">大葉大學 - 財務金融學系</h3>
+                        <p class="text-blue-600 font-medium italic">具備紮實的市場分析與財務邏輯基礎</p>
+                    </div>
+                    <i class="fas fa-chart-line text-4xl text-blue-200"></i>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-slate-700">
+                    <div class="space-y-3">
+                        <h4 class="font-bold flex items-center text-blue-800"><i class="fas fa-check-circle mr-2"></i> 邏輯思維與數據力</h4>
+                        <p class="text-sm leading-relaxed">透過財務報表分析與投資組合訓練，建立起嚴謹的「成本效益觀點」，能快速從繁瑣數據中找出核心問題。</p>
+                    </div>
+                    <div class="space-y-3">
+                        <h4 class="font-bold flex items-center text-blue-800"><i class="fas fa-check-circle mr-2"></i> 風險控管意識</h4>
+                        <p class="text-sm leading-relaxed">專業背景使我面對營運變動時，能先一步評估風險並規劃替代方案，這在保險業務與店務管理中均獲得實證。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="experience" class="mb-20 max-w-4xl">
+            <h2 class="text-3xl font-bold mb-8 flex items-center">
+                <span class="w-10 h-1 bg-blue-600 mr-4"></span>
+                工作與組織經歷精華
+            </h2>
+            
+            <div class="timeline-border relative ml-4 pl-10 space-y-12">
+                
+                <div class="timeline-item relative">
+                    <div class="hover-card bg-white p-6 rounded-xl border border-slate-100 shadow-sm border-l-4 border-l-purple-500">
+                        <div class="flex flex-wrap justify-between items-start mb-4">
+                            <div>
+                                <h3 class="text-xl font-bold text-slate-900">財務金融系學會</h3>
+                                <p class="text-purple-600 font-medium">幹部 — 秘書</p>
+                            </div>
+                            <span class="bg-purple-50 text-purple-600 px-3 py-1 rounded-full text-sm font-semibold mt-2 lg:mt-0">核心組織成員</span>
+                        </div>
+                        <ul class="list-disc list-outside ml-5 space-y-2 text-slate-600 text-sm">
+                            <li><span class="font-semibold text-slate-800 text-base">行政與檔案管理：</span>負責所有正式公文收發、會議記錄與活動檔案建檔。</li>
+                            <li><span class="font-semibold text-slate-800 text-base">溝通協調中樞：</span>擔任系辦公室與學生間的正式溝通橋樑。</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="timeline-item relative">
+                    <div class="hover-card bg-white p-6 rounded-xl border border-slate-100 shadow-sm border-l-4 border-l-blue-600">
+                        <div class="flex flex-wrap justify-between items-start mb-4">
+                            <div>
+                                <h3 class="text-xl font-bold text-slate-900">三商美邦人壽</h3>
+                                <p class="text-blue-600 font-medium">保險業務人員 / 金融顧問</p>
+                            </div>
+                            <span class="bg-blue-50 text-blue-600 px-3 py-1 rounded-full text-sm font-semibold mt-2 lg:mt-0">專業服務</span>
+                        </div>
+                        <ul class="list-disc list-outside ml-5 mb-6 space-y-2 text-slate-600 text-sm">
+                            <li>針對客戶進行專業風險評估，提供個人化保障規劃與財務諮詢服務。</li>
+                            <li>協助客戶處理理賠申請，維持高度專業性與服務品質。</li>
+                        </ul>
+
+                        <div class="mt-4">
+                            <h4 class="text-sm font-bold text-slate-400 mb-3 uppercase tracking-widest flex items-center">
+                                <i class="fas fa-camera-retro mr-2"></i> 三商實務紀錄
+                            </h4>
+                            <div class="img-grid grid grid-cols-2 md:grid-cols-3 gap-3">
+                                <div class="aspect-video bg-slate-100 rounded-lg overflow-hidden border border-slate-200">
+                                    <img src="./230593_0.jpg" alt="三商紀錄6" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/300?text=紀錄6'">
+                                </div>
+                                <div class="aspect-video bg-slate-100 rounded-lg overflow-hidden border border-slate-200">
+                                    <img src="./230593_0.jpg" alt="三商紀錄1" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/300?text=紀錄1'">
+                                </div>
+                                <div class="aspect-video bg-slate-100 rounded-lg overflow-hidden border border-slate-200">
+                                    <img src="./230594_0.jpg" alt="三商紀錄2" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/300?text=紀錄2'">
+                                </div>
+                                <div class="aspect-video bg-slate-100 rounded-lg overflow-hidden border border-slate-200">
+                                    <img src="./230595_0.jpg" alt="三商紀錄3" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/300?text=紀錄3'">
+                                </div>
+                                <div class="aspect-video bg-slate-100 rounded-lg overflow-hidden border border-slate-200">
+                                    <img src="./1534689225091.jpg" alt="三商紀錄4" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/300?text=紀錄4'">
+                                </div>
+                                <div class="aspect-video bg-slate-100 rounded-lg overflow-hidden border border-slate-200">
+                                    <img src="./IMG_1219.PNG" alt="三商紀錄5" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/300?text=紀錄5'">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="timeline-item relative">
+                    <div class="hover-card bg-white p-6 rounded-xl border border-slate-100 shadow-sm">
+                        <div class="flex flex-wrap justify-between items-start mb-4">
+                            <div>
+                                <h3 class="text-xl font-bold text-slate-900">烏弄原生茶飲</h3>
+                                <p class="text-green-600 font-medium">店務營運與人才培訓</p>
+                            </div>
+                            <span class="bg-green-50 text-green-600 px-3 py-1 rounded-full text-sm font-semibold mt-2 lg:mt-0">營運實務</span>
+                        </div>
+                        <p class="text-slate-600 text-sm leading-relaxed">負責新進員工訓練，確保各個環節符合品牌高標準服務品質；優化訂單排程，減少營運成本。</p>
+                    </div>
+                </div>
+
+                <div class="timeline-item relative">
+                    <div class="hover-card bg-white p-6 rounded-xl border border-slate-100 shadow-sm border-l-4 border-l-orange-500">
+                        <div class="flex flex-wrap justify-between items-start mb-4">
+                            <div>
+                                <h3 class="text-xl font-bold text-slate-900">10元壽司店</h3>
+                                <p class="text-orange-600 font-medium">高效率現場營運人員</p>
+                            </div>
+                            <span class="bg-orange-50 text-orange-600 px-3 py-1 rounded-full text-sm font-semibold mt-2 lg:mt-0">效率優化</span>
+                        </div>
+                        <p class="text-slate-600 text-sm leading-relaxed mb-6">在極高流速的環境下維持精確的訂單處理與出餐品質，展現卓越的應變與耐壓能力。</p>
+                        
+                        <div class="mt-4">
+                            <h4 class="text-sm font-bold text-slate-400 mb-3 uppercase tracking-widest flex items-center">
+                                <i class="fas fa-camera-retro mr-2"></i> 壽司店實務紀錄
+                            </h4>
+                            <div class="img-grid grid grid-cols-2 md:grid-cols-4 gap-3">
+                                <div class="aspect-square bg-slate-100 rounded-lg overflow-hidden border border-slate-200">
+                                    <img src="./230596_0.jpg" alt="壽司店紀錄1" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/300?text=紀錄1'">
+                                </div>
+                                <div class="aspect-square bg-slate-100 rounded-lg overflow-hidden border border-slate-200">
+                                    <img src="./230597_0.jpg" alt="壽司店紀錄2" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/300?text=紀錄2'">
+                                </div>
+                                <div class="aspect-square bg-slate-100 rounded-lg overflow-hidden border border-slate-200">
+                                    <img src="./230598_0.jpg" alt="壽司店紀錄3" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/300?text=紀錄3'">
+                                </div>
+                                <div class="aspect-square bg-slate-100 rounded-lg overflow-hidden border border-slate-200">
+                                    <img src="./230599.jpg" alt="壽司店紀錄4" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/300?text=紀錄4'">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <section id="skills" class="mb-20 max-w-4xl">
+            <h2 class="text-3xl font-bold mb-8 flex items-center">
+                <span class="w-10 h-1 bg-blue-600 mr-4"></span>
+                核心能力
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-xl shadow-sm text-center border-b-4 border-blue-500 hover-card">
+                    <i class="fas fa-balance-scale text-3xl text-blue-500 mb-4"></i>
+                    <h4 class="font-bold mb-2">財務邏輯</h4>
+                    <p class="text-sm text-slate-500">預算規劃、風險分析</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm text-center border-b-4 border-purple-500 hover-card">
+                    <i class="fas fa-file-signature text-3xl text-purple-500 mb-4"></i>
+                    <h4 class="font-bold mb-2">組織行政</h4>
+                    <p class="text-sm text-slate-500">檔案管理、溝通協調</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm text-center border-b-4 border-green-500 hover-card">
+                    <i class="fas fa-tasks text-3xl text-green-500 mb-4"></i>
+                    <h4 class="font-bold mb-2">營運管理</h4>
+                    <p class="text-sm text-slate-500">SOP執行、培訓能力</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <a href="#" class="fixed bottom-8 right-8 bg-blue-600 text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg hover:bg-blue-700 transition">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+
+</body>
+</html>

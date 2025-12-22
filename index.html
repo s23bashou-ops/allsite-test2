@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI數據應用與智能程式開發實戰班</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        /* 全局淺色主題與字體 */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8faff; /* 非常淺的藍灰背景 */
+            color: #1f2937; /* 深色文字 */
+        }
+        /* 新增平滑滾動效果 */
+        html {
+            scroll-behavior: smooth;
+        }
+        /* 修正 1: 解決固定導航欄遮擋錨點的問題 (scroll-margin-top) */
+        section[id] {
+            scroll-margin-top: 80px; /* 增加頂部邊距，避免被 sticky navbar 遮蓋 */
+            padding-top: 20px; /* 增加內容間距 */
+        }
+
+        /* 讓作品集卡片更具新穎感 (保留懸停動態) */
+        .portfolio-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .portfolio-card:hover {
+            transform: translateY(-8px) rotate(-1deg);
+            box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.3), 0 4px 6px -2px rgba(59, 130, 246, 0.15);
+            z-index: 10;
+        }
+        /* 搜尋聚焦時的高亮效果 */
+        .search-focus-highlight {
+            ring: 4px;
+            ring-color: #10b981; /* emerald-500 */
+            transform: scale(1.05);
+            box-shadow: 0 20px 25px -5px rgba(16, 185, 129, 0.2);
+        }
+        
+        /* 自定義插圖風格：愛麗絲仙境的圓形和線條 */
+        .alice-icon {
+            stroke-width: 1.5;
+            color: #3b82f6; /* Blue 500 */
+        }
+        /* 側邊導航條樣式 */
+        .fixed-sidebar {
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        
+        /* 導師名片容器樣式 */
+        .mentor-card-container {
+            margin-top: 0;
+        }
+
+        /* --- 特效：宏嘉的海浪與船隻 --- */
+
+        @keyframes stormyWave {
+            0% { border-radius: 45% 55% 48% 52% / 50% 50% 50% 50%; }
+            25% { border-radius: 50% 50% 50% 50% / 45% 55% 48% 52%; }
+            50% { border-radius: 52% 48% 55% 45% / 52% 48% 50% 50%; }
+            75% { border-radius: 50% 50% 50% 50% / 52% 48% 55% 45%; }
+            100% { border-radius: 45% 55% 48% 52% / 50% 50% 50% 50%; }
+        }
+
+        @keyframes shipBobbing {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(1px, -3px) rotate(3deg); }
+            50% { transform: translate(0, 1px) rotate(0deg); }
+            75% { transform: translate(-1px, -2px) rotate(-2deg); }
+            100% { transform: translate(0, 0) rotate(0deg); }
+        }
+
+        #card-hongjia .relative::before,
+        #card-hongjia .relative::after {
+            content: '';
+            position: absolute;
+            top: -6px; left: -6px; right: -6px; bottom: -6px;
+            z-index: 0;
+            border-radius: 50%;
+        }
+
+        #card-hongjia .relative::before {
+            background-color: rgba(30, 58, 138, 0.6);
+            animation: stormyWave 6s linear infinite;
+        }
+
+        #card-hongjia .relative::after {
+            background-color: rgba(59, 130, 246, 0.5);
+            animation: stormyWave 4s linear infinite reverse;
+        }
+        
+        #card-hongjia .relative img {
+            position: relative;
+            z-index: 1;
+        }
+
+        .titanic-ship-container {
+            z-index: 2;
+            animation: shipBobbing 2.5s ease-in-out infinite;
+        }
+
+    </style>
+</head>
+<body>
+
+    <nav class="sticky top-0 z-50 backdrop-blur-md bg-white/90 shadow-lg border-b border-blue-100">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            
+            <div class="flex items-center space-x-4">
+                
+                <a href="#hero" class="text-xl font-extrabold text-blue-600 hover:text-blue-800 transition duration-300 tracking-wider">
+                    AI 數據仙境
+                </a>
+                
+                <div class="relative hidden lg:block"> <input type="text" id="global-search" placeholder="搜尋姓名或關鍵字..." class="py-1.5 pl-4 pr-3 border border-gray-300 rounded-full text-sm focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition duration-150 outline-none w-48" onkeyup="handleSearch(event)">
+                </div>
+
+                <div class="hidden lg:flex space-x-2">
+                    <button class="p-1.5 rounded-full text-gray-500 bg-gray-100 hover:bg-blue-50 hover:text-blue-600 transition duration-150" onclick="performSearch('一般搜尋')" title="一般搜尋">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                    </button>
+                    <button class="p-1.5 rounded-full text-gray-500 bg-gray-100 hover:bg-blue-50 hover:text-green-600 transition duration-150" onclick="performSearch('AI 搜尋')" title="AI 搜尋">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v2"/><path d="M12 18v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+                    </button>
+                    <button class="p-1.5 rounded-full text-gray-500 bg-gray-100 hover:bg-blue-50 hover:text-red-600 transition duration-150" onclick="performSearch('Agent 搜尋')" title="Agent 搜尋">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4"/><path d="M16 4h-8"/><rect width="18" height="10" x="3" y="8" rx="2"/><path d="M7 13h10"/><path d="M12 18v4"/><path d="M8 22h8"/></svg>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="hidden md:flex items-center space-x-6"> 
+                <div class="space-x-6 flex text-sm">
+                    <a href="#portfolio" class="text-blue-600 font-bold transition duration-300">學員作品集</a>
+                    <a href="#mentor" class="text-gray-700 hover:text-blue-600 font-medium transition duration-300">導師引導</a>
+                    <a href="#signup" class="bg-blue-600 text-white font-extrabold py-1 px-4 rounded-full hover:bg-blue-500 transform hover:scale-105 transition duration-300">啟程報名</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <div id="fixed-sidebar" class="fixed-sidebar fixed right-0 z-30 hidden md:block">
+        <div class="bg-white/80 backdrop-blur-sm p-3 rounded-l-xl shadow-xl border-y border-l border-blue-100 flex flex-col space-y-2">
+            <a href="#hero" class="group relative flex items-center p-2 rounded-full text-blue-600 hover:bg-blue-50 transition duration-300" aria-label="首頁">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                <span class="absolute right-full mr-2 px-3 py-1 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">首頁</span>
+            </a>
+            <a href="#portfolio" class="group relative flex items-center p-2 rounded-full text-blue-600 hover:bg-blue-50 transition duration-300" aria-label="作品集">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>
+                <span class="absolute right-full mr-2 px-3 py-1 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">學員作品集</span>
+            </a>
+            <a href="#mentor" class="group relative flex items-center p-2 rounded-full text-blue-600 hover:bg-blue-50 transition duration-300" aria-label="導師寄語">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                <span class="absolute right-full mr-2 px-3 py-1 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">導師引導</span>
+            </a>
+            <a href="#signup" class="group relative flex items-center p-2 rounded-full bg-yellow-400 text-gray-900 hover:bg-yellow-300 transition duration-300" aria-label="報名">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M9 11l3 3L22 4"/></svg>
+                <span class="absolute right-full mr-2 px-3 py-1 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">立即報名</span>
+            </a>
+        </div>
+    </div>
+
+
+    <header id="hero" class="bg-blue-50 text-gray-900 py-16 md:py-32 shadow-inner relative overflow-hidden">
+        <div class="absolute inset-0 z-0 opacity-30" style="background-image: radial-gradient(circle at 50% 10%, rgba(59, 130, 246, 0.15) 10%, rgba(255, 255, 255, 0) 80%);"></div>
+        <div class="container mx-auto px-4 text-center relative z-10">
+            <h1 class="text-4xl md:text-7xl font-extrabold mb-6 leading-snug">
+                AI數據應用與智能程式開發實戰班
+            </h1>
+            <p class="text-lg md:text-2xl mb-12 text-gray-600 max-w-4xl mx-auto">
+                跳入數據兔子洞，將數據轉化為智慧魔力，掌握改變世界的程式開發核心技能。
+            </p>
+            
+            <div class="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 mb-16 text-left">
+                <div class="p-4 bg-white/70 backdrop-blur-sm rounded-xl border border-blue-200 shadow-lg transform hover:scale-[1.02] transition duration-300">
+                    <span class="text-2xl text-blue-600 font-bold mb-2 block">✨ 智慧魔力</span>
+                    <p class="text-sm text-gray-700">通過強大的 AI 提示工程，讓機器為您創作、分析和決策。</p>
+                </div>
+                <div class="p-4 bg-white/70 backdrop-blur-sm rounded-xl border border-blue-200 shadow-lg transform hover:scale-[1.02] transition duration-300">
+                    <span class="text-2xl text-green-600 font-bold mb-2 block">📊 數據地圖</span>
+                    <p class="text-sm text-gray-700">學會 Python 和 SQL，將複雜的數據轉化為清晰的決策地圖。</p>
+                </div>
+                <div class="p-4 bg-white/70 backdrop-blur-sm rounded-xl border border-blue-200 shadow-lg transform hover:scale-[1.02] transition duration-300">
+                    <span class="text-2xl text-red-600 font-bold mb-2 block">🚀 程式開發</span>
+                    <p class="text-sm text-gray-700">實戰演練智能程式碼生成，加速開發流程，實現自動化目標。</p>
+                </div>
+            </div>
+
+            <div class="space-x-4">
+                <button onclick="window.location.href='#signup'" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-10 rounded-full text-lg transition duration-300 transform hover:scale-105 shadow-xl shadow-blue-500/30">
+                    立即報名，啟動未來
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <section id="portfolio" class="py-16 md:py-24 bg-white border-t border-gray-100">
+        <div class="container mx-auto px-4 max-w-7xl">
+            <div class="flex flex-col md:flex-row items-center justify-center mb-12">
+                <div class="mr-6 mb-4 md:mb-0 text-blue-500">
+                    <svg class="alice-icon" xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><path d="M7 10h.01"/><path d="M10 10h.01"/><path d="M13 10h.01"/><path d="M7 13h.01"/><path d="M10 13h.01"/><path d="M13 13h.01"/><path d="M16 13h.01"/></svg>
+                </div>
+                <h2 class="text-3xl md:text-5xl font-extrabold text-gray-900 text-center">學員作品集：完整的冒險足跡</h2>
+            </div>
+            
+            <p class="text-center text-lg text-gray-600 mb-12 max-w-3xl mx-auto">
+                這裡展示了所有學員在課程中的學習成果，從高度相關的應用到充滿個人色彩的創意延伸。
+            </p>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8">
+                
+                <div id="card-monitor" class="portfolio-card bg-white p-6 rounded-xl shadow-lg border-t-4 border-blue-500 text-center hover:shadow-2xl hover:border-blue-600">
+                    <img src="./MeowMeowCat.png" class="w-24 h-24 rounded-full mx-auto mb-4 object-cover border-4 border-cyan-400" alt="班長" onerror="this.onerror=null; this.src='https://placehold.co/100x100/e0f2f1/0d9488?text=班長';"> 
+                    <h4 class="text-xl font-extrabold text-gray-900 mb-1">班長</h4>
+                    <p class="text-sm text-blue-600 font-medium mb-4">專業自由作家 / AI 提示工程師</p>
+                    <a href="https://twsirius-gomablog.netlify.app/" class="inline-flex items-center bg-blue-600 text-white font-semibold py-2 px-4 rounded-full text-sm hover:bg-blue-500 transition duration-300">查看網站</a>
+                </div>
+
+                <div id="card-hongjia" class="portfolio-card bg-white p-6 rounded-xl shadow-lg border-t-4 border-blue-500 text-center hover:shadow-2xl hover:border-blue-600 transition-all duration-500 z-0">
+                    <div class="relative w-24 h-24 mx-auto mb-4">
+                        <img src="./hongjia.jpeg" class="w-full h-full rounded-full object-cover" alt="宏嘉" onerror="this.onerror=null; this.src='https://placehold.co/100x100/e0f2f1/0d9488?text=宏嘉';">
+                        
+                        <div class="titanic-ship-container absolute -bottom-2 -right-2 w-10 h-10 bg-white rounded-full p-1 flex items-center justify-center shadow-sm border-2 border-blue-900" title="海軍服役紀念，乘風破浪">
+                            <div id="hongjia-bubble" class="absolute left-full top-1/2 -translate-y-1/2 ml-4 px-4 py-3 bg-white text-blue-900 text-lg font-extrabold rounded-2xl shadow-2xl border-2 border-blue-900 text-center opacity-0 transition-opacity duration-300 pointer-events-none z-50 w-max">
+                                <span class="block whitespace-nowrap">同舟共濟</span>
+                                <span class="block whitespace-nowrap">萬眾一心！</span>
+                                <div class="absolute top-1/2 right-full -mr-px w-3 h-3 bg-white border-l-2 border-b-2 border-blue-900 transform rotate-45 -translate-y-1/2"></div>
+                            </div>
+
+                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 text-blue-900">
+                                <path d="M12.0002 2.25244L13.3645 5.7139C13.4889 6.02931 13.7916 6.23803 14.1306 6.23803H16.7143C16.8556 6.23803 16.9677 6.3568 16.9599 6.49805L16.7499 10.238C16.6255 10.5534 16.3228 10.7622 15.9838 10.7622H2.25024C1.20762 10.7622 0.541391 11.8781 1.03895 12.7877L2.8516 16.1022C3.52963 17.3421 4.83481 18.1052 6.24673 18.1052H19.8584C20.901 18.1052 21.5672 16.9894 21.0697 16.0797L19.257 12.7653C18.579 11.5253 17.2738 10.7622 15.8619 10.7622V7.28564L19.5506 8.16006C19.882 8.23877 20.1878 8.09456 20.3319 7.79627L21.2151 5.96859C21.3503 5.68872 21.1756 5.35995 20.8675 5.32338L18.6323 5.05803C18.3312 5.02228 18.0737 4.82789 17.9753 4.54632L17.3082 2.6363C17.2099 2.35472 16.9523 2.16034 16.6513 2.12459L15.4879 1.98647L15.0173 0.791826C14.8956 0.482938 14.4729 0.482939 14.3512 0.791827L12.0002 2.25244Z"/>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <h4 class="text-xl font-extrabold text-gray-900 mb-1">宏嘉</h4>
+                    <p class="text-sm text-blue-600 font-medium mb-4">海軍146艦隊PFG-2 1105 電子作戰士/<br />電戰中士</p>
+                    <a href="./hongjia.html" class="inline-flex items-center bg-blue-600 text-white font-semibold py-2 px-4 rounded-full text-sm hover:bg-blue-500 transition duration-300">查看網站</a>
+                </div>
+                <div id="card-bingjun" class="portfolio-card bg-white p-6 rounded-xl shadow-lg border-t-4 border-blue-500 text-center hover:shadow-2xl hover:border-blue-600 transition-all duration-500">
+                    <img src="./snow.jpg" class="w-24 h-24 rounded-full mx-auto mb-4 object-cover border-4 border-blue-400" alt="秉鈞" onerror="this.onerror=null; this.src='https://placehold.co/100x100/e0f2f1/0d9488?text=秉鈞';">
+                    <h4 class="text-xl font-extrabold text-gray-900 mb-1">秉鈞</h4>
+                    <p class="text-sm text-blue-600 font-medium mb-4">互動網頁開發 / 沉浸式體驗設計</p>
+                    <a href="./portfolio.html" class="inline-flex items-center bg-blue-600 text-white font-semibold py-2 px-4 rounded-full text-sm hover:bg-blue-500 transition duration-300">查看網站</a>
+                </div>
+                
+                <div id="card-weikai" class="portfolio-card bg-white p-6 rounded-xl shadow-lg border-t-4 border-blue-500 text-center hover:shadow-2xl hover:border-blue-600">
+                    <img src="./230603.jpg" class="w-24 h-24 rounded-full mx-auto mb-4 object-cover border-4 border-indigo-400" alt="唯愷" onerror="this.onerror=null; this.src='https://via.placeholder.com/150?text=KAI';">
+                    <h4 class="text-xl font-extrabold text-gray-900 mb-1">唯愷</h4>
+                    <p class="text-sm text-blue-600 font-medium mb-4">財務金融背景 / 組織行政專家</p>
+                    <a href="./%E6%96%B9%E5%94%AF%E5% Kris%E5%B1%A5%E6%AD%B7%E8%A1%A8.html" class="inline-flex items-center bg-blue-600 text-white font-semibold py-2 px-4 rounded-full text-sm hover:bg-blue-500 transition duration-300">查看網站</a>
+                </div>
+
+                <div id="card-guanyu" class="portfolio-card bg-white p-6 rounded-xl shadow-lg border-t-4 border-blue-500 text-center hover:shadow-2xl hover:border-blue-600">
+                    <img src="./IMG_8185.PNG" class="w-24 h-24 rounded-full mx-auto mb-4 object-cover border-4 border-fuchsia-400" alt="冠妤" onerror="this.onerror=null; this.src='https://placehold.co/100x100/e0f2f1/0d9488?text=冠妤';">
+                    <h4 class="text-xl font-extrabold text-gray-900 mb-1">冠妤</h4>
+                    <p class="text-sm text-blue-600 font-medium mb-4">VBA 達人 / 供應鏈行家</p>
+                    <a href="#" class="inline-flex items-center bg-blue-600 text-white font-semibold py-2 px-4 rounded-full text-sm hover:bg-blue-500 transition duration-300 mb-2">查看網站</a>
+                    <div class="flex justify-center space-x-2">
+                        <a href="https://docs.google.com/spreadsheets/d/1AE7IBIzTnUt9Sf313WXsp1CPWLK3LjHL/edit?gid=1880193590#gid=1880193590" target="_blank" class="p-2 bg-gray-100 hover:bg-blue-100 text-gray-600 hover:text-blue-600 rounded-full transition duration-300" title="研究">
+                            <i class="fas fa-flask"></i>
+                        </a>
+                        <a href="https://gemini.google.com/share/358509a31acc" target="_blank" class="p-2 bg-gray-100 hover:bg-green-100 text-gray-600 hover:text-green-600 rounded-full transition duration-300" title="供應鏈">
+                            <i class="fas fa-truck-ramp-box"></i>
+                        </a>
+                        <a href="https://gemini.google.com/share/81fda7a42cdc" target="_blank" class="p-2 bg-gray-100 hover:bg-amber-100 text-gray-600 hover:text-amber-600 rounded-full transition duration-300" title="儀錶板">
+                            <i class="fas fa-chart-line"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div id="card-dongyu" class="portfolio-card bg-white p-6 rounded-xl shadow-lg border-t-4 border-blue-500 text-center hover:shadow-2xl hover:border-blue-600">
+                    <img src="./aiexplorer.jpeg" class="w-24 h-24 rounded-full mx-auto mb-4 object-cover border-4 border-slate-600" alt="東育" onerror="this.onerror=null; this.src='https://placehold.co/100x100/e0f2f1/0d9488?text=東育';">
+                    <h4 class="text-xl font-extrabold text-gray-900 mb-1">東育</h4>
+                    <p class="text-sm text-blue-600 font-medium mb-4">AI 探索者 / 極簡主義風格</p>
+                    <a href="./%E5%80%8B%E4%BA%BA%E4%B8%BB%E9%A0%81.html" class="inline-flex items-center bg-blue-600 text-white font-semibold py-2 px-4 rounded-full text-sm hover:bg-blue-500 transition duration-300 mb-2">查看網站</a>
+                    <div class="flex justify-center space-x-2">
+                        <a href="./%E5%A5%87%E6%91%A9%E8%82%A1%E5%B8%82%E5%AF%A6%E6%99%82%E5%88%86%E6%9E%90.html" class="p-2 bg-gray-100 hover:bg-red-100 text-gray-600 hover:text-red-600 rounded-full transition duration-300" title="股市">
+                            <i class="fas fa-chart-line"></i>
+                        </a>
+                        <a href="./%E7%B6%93%E6%BF%9F%E6%97%A5%E5%A0%B1%E5%AF%A6%E6%99%82%E5%88%86%E6%9E%90.html" class="p-2 bg-gray-100 hover:bg-orange-100 text-gray-600 hover:text-orange-600 rounded-full transition duration-300" title="日報">
+                            <i class="fas fa-newspaper"></i>
+                        </a>
+                        <a href="./%E6%99%BA%E8%83%BD%E7%B6%B2%E7%AB%99%E5%88%86%E6%9E%90%E5%B8%AB.html" class="p-2 bg-gray-100 hover:bg-blue-100 text-gray-600 hover:text-blue-600 rounded-full transition duration-300" title="智能網站">
+                            <i class="fas fa-robot"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="portfolio-card bg-white p-6 rounded-xl shadow-lg border-t-4 border-blue-500 text-center hover:shadow-2xl hover:border-blue-600">
+                    <img src="./images/issues-1-3-1.jpg" class="w-24 h-24 rounded-full mx-auto mb-4 object-cover border-4 border-blue-100" alt="G" onerror="this.onerror=null; this.src='https://placehold.co/100x100/e0f2f1/0d9488?text=G';">
+                    <h4 class="text-xl font-extrabold text-gray-900 mb-1">學員 G</h4>
+                    <p class="text-sm text-blue-600 font-medium mb-4">UI/UX 設計師 / AI 繪圖</p>
+                    <a href="#" class="inline-flex items-center bg-blue-600 text-white font-semibold py-2 px-4 rounded-full text-sm hover:bg-blue-500 transition duration-300">查看網站</a>
+                </div>
+
+                <div class="portfolio-card bg-white p-6 rounded-xl shadow-lg border-t-4 border-blue-500 text-center hover:shadow-2xl hover:border-blue-600">
+                    <img src="./images/OIP.webp" class="w-24 h-24 rounded-full mx-auto mb-4 object-cover border-4 border-blue-100" alt="H" onerror="this.onerror=null; this.src='https://placehold.co/100x100/e0f2f1/0d9488?text=H';">
+                    <h4 class="text-xl font-extrabold text-gray-900 mb-1">學員 H</h4>
+                    <p class="text-sm text-blue-600 font-medium mb-4">跨領域專案經理 / Prompt 專家</p>
+                    <a href="#" class="inline-flex items-center bg-blue-600 text-white font-semibold py-2 px-4 rounded-full text-sm hover:bg-blue-500 transition duration-300">查看網站</a>
+                </div>
+
+                <div class="portfolio-card bg-white p-6 rounded-xl shadow-lg border-t-4 border-blue-500 text-center hover:shadow-2xl hover:border-blue-600">
+                    <img src="./images/R%20(1).jfif" class="w-24 h-24 rounded-full mx-auto mb-4 object-cover border-4 border-blue-100" alt="I" onerror="this.onerror=null; this.src='https://placehold.co/100x100/e0f2f1/0d9488?text=I';">
+                    <h4 class="text-xl font-extrabold text-gray-900 mb-1">學員 I</h4>
+                    <p class="text-sm text-blue-600 font-medium mb-4">智能程式碼審核員 / 軟體開發</p>
+                    <a href="#" class="inline-flex items-center bg-blue-600 text-white font-semibold py-2 px-4 rounded-full text-sm hover:bg-blue-500 transition duration-300">查看網站</a>
+                </div>
+                
+                <div class="portfolio-card bg-white p-6 rounded-xl shadow-lg border-t-4 border-blue-500 text-center hover:shadow-2xl hover:border-blue-600">
+                    <img src="./images/R.jfif" class="w-24 h-24 rounded-full mx-auto mb-4 object-cover border-4 border-blue-100" alt="J" onerror="this.onerror=null; this.src='https://placehold.co/100x100/e0f2f1/0d9488?text=J';">
+                    <h4 class="text-xl font-extrabold text-gray-900 mb-1">學員 J</h4>
+                    <p class="text-sm text-blue-600 font-medium mb-4">金融科技 / AI 策略分析師</p>
+                    <a href="#" class="inline-flex items-center bg-blue-600 text-white font-semibold py-2 px-4 rounded-full text-sm hover:bg-blue-500 transition duration-300">查看網站</a>
+                </div>
+            </div>
+            
+            <div class="text-center mt-12">
+                <p class="text-gray-500 italic">探索學員們在 AI 基礎上發揮無限創意的成果！</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="mentor" class="py-16 md:py-24 bg-blue-50 border-t border-blue-100">
+        <div class="container mx-auto px-4 max-w-4xl">
+            <h2 class="text-3xl md:text-5xl font-extrabold text-center text-gray-900 mb-12">導師引導：通往智慧的門</h2>
+            
+            <div class="flex flex-col md:flex-row gap-8 items-center md:items-stretch">
+                <blockquote class="bg-white p-8 md:p-12 rounded-2xl shadow-xl border-l-8 border-blue-600 relative flex-1">
+                    <p class="text-xl md:text-2xl italic text-gray-700 leading-relaxed">
+                        「在這個快速變革的時代，掌握 AI 工具已不再是選擇，而是必需。我希望這門課程不僅傳授技能，更能激發您的創造力，讓 AI 成為您最得力的助手，共同開創智能寫作與數據應用的新紀元。」
+                    </p>
+                    <footer class="mt-6 text-right font-semibold text-blue-600">
+                        —— 鄭穎臨 導師
+                    </footer>
+                </blockquote>
+
+                <div class="mentor-card-container w-full max-w-xs md:w-1/3">
+                    <div class="bg-white p-6 rounded-xl shadow-lg border-t-4 border-red-500 text-center h-full flex flex-col justify-center">
+                        <img src="./images/force.jfif" class="w-24 h-24 rounded-full mx-auto mb-4 object-cover border-4 border-red-200" alt="鄭穎臨" onerror="this.onerror=null; this.src='https://placehold.co/100x100/1e293b/f43f5e?text=老師';">
+                        <h4 class="text-xl font-extrabold text-gray-900 mb-1">鄭穎臨</h4>
+                        <p class="text-sm text-red-600 font-medium mb-4">主導師 / 數據智能專家</p>
+                        <button class="mt-auto inline-flex items-center justify-center bg-red-600 text-white font-semibold py-2 px-4 rounded-full text-sm hover:bg-red-500 transition duration-300">
+                            聯絡導師
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer id="signup" class="bg-blue-700 text-white py-12 md:py-16 text-center border-t border-blue-600">
+        <div class="container mx-auto px-4">
+            <h3 class="text-2xl md:text-4xl font-extrabold text-white mb-4">攜手邁向智能未來</h3>
+            <p class="text-lg mb-8 text-blue-200 max-w-2xl mx-auto">
+                感謝您參與 AI 數據仙境的旅程。我們期待在智能化的道路上，與您共同成長，創造更多無限可能！
+            </p>
+            <button onclick="window.location.href='#'" class="bg-yellow-400 hover:bg-yellow-300 text-gray-900 font-bold py-3 px-10 rounded-full text-xl transition duration-300 transform hover:scale-105 shadow-xl shadow-yellow-500/50">
+                立即探索更多課程
+            </button>
+            <p class="mt-8 text-sm text-blue-300">Made with 靈感來自 愛麗絲與 AI</p>
+        </div>
+    </footer>
+
+    <nav id="mobile-nav" class="fixed bottom-0 left-0 w-full z-50 md:hidden bg-white border-t border-gray-200 shadow-2xl flex justify-around p-2">
+        <a href="#portfolio" class="flex flex-col items-center p-2 text-blue-600">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+            <span class="text-xs mt-1">作品集</span>
+        </a>
+        <a href="#mentor" class="flex flex-col items-center p-2 text-gray-600">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <span class="text-xs mt-1">導師</span>
+        </a>
+        <a href="#signup" class="flex flex-col items-center p-2 bg-blue-600 rounded-lg text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+            <span class="text-xs mt-1 font-bold">報名</span>
+        </a>
+    </nav>
+    
+    <script>
+        // --- 搜尋功能 (Search Functionality) ---
+        function performSearch(mode) {
+            const searchTerm = document.getElementById('global-search').value.trim();
+            const searchMode = mode || '一般搜尋';
+            
+            if (searchTerm === "") {
+                const message = document.createElement('div');
+                message.className = "fixed top-20 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-6 py-2 rounded-full z-[100] shadow-xl";
+                message.innerText = "請輸入搜尋內容。";
+                document.body.appendChild(message);
+                setTimeout(() => message.remove(), 2000);
+                return;
+            }
+
+            // --- 班長聚焦邏輯 ---
+            if (searchTerm.includes("班長") || searchTerm.includes("作家")) {
+                const monitorCard = document.getElementById('card-monitor');
+                if (monitorCard) {
+                    monitorCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    // 保留青色框 + 疊加深紫羅蘭色光暈
+                    monitorCard.style.boxShadow = "0 0 30px 12px rgba(75, 0, 130, 0.6)";
+                    monitorCard.classList.add('ring-4', 'ring-cyan-500', 'scale-105', 'z-20');
+                    const highlightMsg = document.createElement('div');
+                    highlightMsg.className = "fixed top-20 left-1/2 transform -translate-x-1/2 bg-cyan-600 text-white px-6 py-2 rounded-full z-[100] shadow-xl";
+                    highlightMsg.innerText = `已透過 ${searchMode} 模式為您找到：班長`;
+                    document.body.appendChild(highlightMsg);
+                    setTimeout(() => {
+                        monitorCard.classList.remove('ring-4', 'ring-cyan-500', 'scale-105', 'z-20');
+                        monitorCard.style.boxShadow = "";
+                        highlightMsg.remove();
+                    }, 3000);
+                    return;
+                }
+            }
+
+            // --- 唯愷聚焦邏輯 ---
+            if (searchTerm.includes("唯愷") || searchTerm.includes("金融")) {
+                const weikaiCard = document.getElementById('card-weikai');
+                if (weikaiCard) {
+                    weikaiCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    // 保留靛藍框 + 疊加鮮橘紅色光暈
+                    weikaiCard.style.boxShadow = "0 0 30px 12px rgba(255, 69, 0, 0.6)";
+                    weikaiCard.classList.add('ring-4', 'ring-indigo-500', 'scale-105', 'z-20');
+                    const highlightMsg = document.createElement('div');
+                    highlightMsg.className = "fixed top-20 left-1/2 transform -translate-x-1/2 bg-indigo-600 text-white px-6 py-2 rounded-full z-[100] shadow-xl";
+                    highlightMsg.innerText = `已透過 ${searchMode} 模式為您找到：唯愷`;
+                    document.body.appendChild(highlightMsg);
+                    setTimeout(() => {
+                        weikaiCard.classList.remove('ring-4', 'ring-indigo-500', 'scale-105', 'z-20');
+                        weikaiCard.style.boxShadow = "";
+                        highlightMsg.remove();
+                    }, 3000);
+                    return;
+                }
+            }
+
+            // --- 冠妤聚焦邏輯 ---
+            if (searchTerm.includes("冠妤") || searchTerm.includes("供應鏈")) {
+                const guanyuCard = document.getElementById('card-guanyu');
+                if (guanyuCard) {
+                    guanyuCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    // 保留粉紫框 + 疊加翡翠深綠色光暈
+                    guanyuCard.style.boxShadow = "0 0 30px 12px rgba(0, 100, 0, 0.6)";
+                    guanyuCard.classList.add('ring-4', 'ring-fuchsia-500', 'scale-105', 'z-20');
+                    const highlightMsg = document.createElement('div');
+                    highlightMsg.className = "fixed top-20 left-1/2 transform -translate-x-1/2 bg-fuchsia-600 text-white px-6 py-2 rounded-full z-[100] shadow-xl";
+                    highlightMsg.innerText = `已透過 ${searchMode} 模式為您找到：冠妤`;
+                    document.body.appendChild(highlightMsg);
+                    setTimeout(() => {
+                        guanyuCard.classList.remove('ring-4', 'ring-fuchsia-500', 'scale-105', 'z-20');
+                        guanyuCard.style.boxShadow = "";
+                        highlightMsg.remove();
+                    }, 3000);
+                    return;
+                }
+            }
+
+            // --- 東育聚焦邏輯 ---
+            if (searchTerm.includes("東育") || searchTerm.includes("極簡")) {
+                const dongyuCard = document.getElementById('card-dongyu');
+                if (dongyuCard) {
+                    dongyuCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    // 保留石墨灰框 + 疊加深森林綠光暈
+                    dongyuCard.style.boxShadow = "0 0 30px 12px rgba(30, 58, 52, 0.7)";
+                    dongyuCard.classList.add('ring-4', 'ring-slate-600', 'scale-105', 'z-20');
+                    const highlightMsg = document.createElement('div');
+                    highlightMsg.className = "fixed top-20 left-1/2 transform -translate-x-1/2 bg-slate-700 text-white px-6 py-2 rounded-full z-[100] shadow-xl";
+                    highlightMsg.innerText = `已透過 ${searchMode} 模式為您找到：東育`;
+                    document.body.appendChild(highlightMsg);
+                    setTimeout(() => {
+                        dongyuCard.classList.remove('ring-4', 'ring-slate-600', 'scale-105', 'z-20');
+                        dongyuCard.style.boxShadow = "";
+                        highlightMsg.remove();
+                    }, 3000);
+                    return;
+                }
+            }
+
+            // --- 秉鈞聚焦邏輯 ---
+            if (searchTerm.includes("秉鈞") || searchTerm.includes("互動網頁")) {
+                const bingjunCard = document.getElementById('card-bingjun');
+                if (bingjunCard) {
+                    bingjunCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    // 保留藍框 + 疊加琥珀金色光暈
+                    bingjunCard.style.boxShadow = "0 0 30px 12px rgba(255, 191, 0, 0.7)";
+                    bingjunCard.classList.add('ring-4', 'ring-blue-500', 'scale-105', 'z-20');
+                    const highlightMsg = document.createElement('div');
+                    highlightMsg.className = "fixed top-20 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white px-6 py-2 rounded-full z-[100] shadow-xl";
+                    highlightMsg.innerText = `已透過 ${searchMode} 模式為您找到：秉鈞`;
+                    document.body.appendChild(highlightMsg);
+                    setTimeout(() => {
+                        bingjunCard.classList.remove('ring-4', 'ring-blue-500', 'scale-105', 'z-20');
+                        bingjunCard.style.boxShadow = "";
+                        highlightMsg.remove();
+                    }, 3000);
+                    return;
+                }
+            }
+
+            // --- 宏嘉聚焦邏輯 ---
+            if (searchTerm.includes("宏嘉") || searchTerm.includes("軍人")) {
+                const hongjiaCard = document.getElementById('card-hongjia');
+                const bubble = document.getElementById('hongjia-bubble'); 
+                if (hongjiaCard) {
+                    hongjiaCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    // 保留綠框 + 疊加皇家藍色光暈
+                    hongjiaCard.style.boxShadow = "0 0 30px 12px rgba(0, 35, 102, 0.6)";
+                    hongjiaCard.classList.add('ring-4', 'ring-emerald-500', 'scale-105', 'z-20');
+                    if (bubble) bubble.classList.remove('opacity-0');
+                    const highlightMsg = document.createElement('div');
+                    highlightMsg.className = "fixed top-20 left-1/2 transform -translate-x-1/2 bg-emerald-600 text-white px-6 py-2 rounded-full z-[100] shadow-xl";
+                    highlightMsg.innerText = `已透過 ${searchMode} 模式為您找到：宏嘉`;
+                    document.body.appendChild(highlightMsg);
+                    setTimeout(() => {
+                        hongjiaCard.classList.remove('ring-4', 'ring-emerald-500', 'scale-105', 'z-20');
+                        hongjiaCard.style.boxShadow = "";
+                        if (bubble) bubble.classList.add('opacity-0');
+                        highlightMsg.remove();
+                    }, 3000);
+                    return;
+                }
+            }
+
+            // 模擬其他搜尋結果
+            const resultMsg = document.createElement('div');
+            resultMsg.className = "fixed top-20 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white px-6 py-2 rounded-full z-[100] shadow-xl";
+            resultMsg.innerText = `執行 ${searchMode} 模式搜尋: ${searchTerm} (模擬功能)`;
+            document.body.appendChild(resultMsg);
+            setTimeout(() => resultMsg.remove(), 2000);
+        }
+
+        function handleSearch(event) {
+            if (event.key === 'Enter') {
+                performSearch('一般搜尋');
+            }
+        }
+    </script>
+</body>
+</html>

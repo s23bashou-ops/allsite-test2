@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>織夢者藍圖 | 賽博龐克虛實共感終極宣言</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@100;300;400;700;900&family=JetBrains+Mono:wght@300;700&display=swap');
+
+        :root {
+            --cyber-blue: #00f3ff;
+            --cyber-purple: #a855f7;
+            --cyber-pink: #d187ff; 
+            --cyber-yellow: #fdee06;
+            --cyber-orange: #ff8c00; 
+            --bg-dark: #020205;
+        }
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background: var(--bg-dark);
+            color: #e0e0e0;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        /* --- 1. 轉場特效層 --- */
+        #impact-overlay { position: fixed; inset: 0; background: radial-gradient(circle, var(--cyber-blue) 0%, #fff 100%); z-index: 1000000; opacity: 0; pointer-events: none; transition: opacity 0.6s ease; }
+        .tech-ascension { animation: tech-wash 1.2s ease-in-out forwards; }
+        @keyframes tech-wash { 0% { opacity: 0; filter: blur(30px); } 40% { opacity: 1; filter: blur(0px); } 100% { opacity: 1; } }
+        
+        #time-tunnel { position: fixed; inset: 0; background: #000; z-index: 999999; display: none; overflow: hidden; }
+        .tunnel-streak { position: absolute; top: 50%; left: 50%; width: 2px; height: 100vh; background: linear-gradient(to top, transparent, var(--cyber-blue), white); transform-origin: top center; opacity: 0; }
+        @keyframes streak-fast { 0% { transform: translate(-50%, -50%) rotate(var(--r)) translateY(0) scaleY(0.1); opacity: 0; } 50% { opacity: 1; } 100% { transform: translate(-50%, -50%) rotate(var(--r)) translateY(-100vh) scaleY(10); opacity: 0; } }
+
+        /* --- 2. 系統加載與霓虹標題 --- */
+        #system-loader { position: fixed; inset: 0; background: #000; z-index: 100000; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.8s ease; }
+        .neon-glow { font-family: 'JetBrains Mono', monospace; font-size: 24px; color: #fff; text-transform: uppercase; letter-spacing: 10px; text-shadow: 0 0 10px #fff, 0 0 20px var(--cyber-blue); animation: neon-flicker 1.5s infinite alternate; margin-bottom: 30px; }
+        @keyframes neon-flicker { 0%, 18%, 22%, 25%, 53%, 57%, 100% { opacity: 1; text-shadow: 0 0 10px #fff, 0 0 20px var(--cyber-blue); } 20%, 24%, 55% { opacity: 0.3; text-shadow: none; } }
+        .loader-bar-container { width: 280px; height: 2px; background: rgba(0, 243, 255, 0.1); position: relative; overflow: hidden; }
+        .loader-bar-fill { position: absolute; top: 0; left: 0; height: 100%; width: 0%; background: var(--cyber-blue); box-shadow: 0 0 15px var(--cyber-blue); transition: width 3s linear; }
+        #boot-prompt { margin-top: 60px; color: var(--cyber-blue); font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: 5px; opacity: 0; transition: all 0.5s ease; font-size: 13px; font-weight: bold; border: 1px solid rgba(0, 243, 255, 0.3); padding: 12px 30px; clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%); }
+        #boot-prompt.ready { opacity: 1; animation: pulse-neon 1.5s infinite; }
+        @keyframes pulse-neon { 0%, 100% { opacity: 0.3; background: transparent; } 50% { opacity: 1; background: rgba(0, 243, 255, 0.1); text-shadow: 0 0 10px var(--cyber-blue); } }
+
+        /* --- 3. 內容與佈局 --- */
+        #main-wrapper { opacity: 0; visibility: hidden; display: none; transition: opacity 1s ease; }
+        #main-wrapper.visible { opacity: 1; visibility: visible; display: block; }
+        .main-content { max-width: 900px; margin: 0 auto; position: relative; }
+
+        .scanlines { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02)); z-index: 999; pointer-events: none; opacity: 0.4; }
+        .xp-system { position: fixed; top: 0; left: 0; width: 100%; height: 3px; background: rgba(255,255,255,0.05); z-index: 1000; }
+        .xp-progress { height: 100%; width: 0%; background: linear-gradient(90deg, var(--cyber-blue), var(--cyber-pink)); box-shadow: 0 0 15px var(--cyber-blue); transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1); }
+
+        /* --- 4. 側邊分組導覽 --- */
+        .sidebar { position: fixed; left: 55px; top: 55%; transform: translateY(-50%); z-index: 100; display: flex; flex-direction: column; gap: 1.5rem; transition: opacity 0.5s ease; }
+        .nav-group { position: relative; padding: 15px 0; border-left: 1px solid rgba(255,255,255,0.1); padding-left: 25px; }
+        .nav-group::before { 
+            content: attr(data-label); position: absolute; left: -42px; top: 15px; 
+            font-family: 'JetBrains Mono', monospace; font-size: 10px; 
+            transform: rotate(-90deg); transform-origin: center center; 
+            text-transform: uppercase; letter-spacing: 3px; font-weight: 900; white-space: nowrap;
+        }
+        .nav-group[data-label="Logic"]::before { color: var(--cyber-blue); }
+        .nav-group[data-label="Logic"] .node-dot { border-color: var(--cyber-blue); }
+        .nav-group[data-label="Logic"] .nav-node.active .node-dot { background: var(--cyber-blue); box-shadow: 0 0 15px var(--cyber-blue); }
+        .nav-group[data-label="Space"]::before { color: var(--cyber-purple); }
+        .nav-group[data-label="Space"] .node-dot { border-color: var(--cyber-purple); }
+        .nav-group[data-label="Space"] .nav-node.active .node-dot { background: var(--cyber-purple); box-shadow: 0 0 15px var(--cyber-purple); }
+        .nav-group[data-label="Soul"]::before { color: var(--cyber-pink); }
+        .nav-group[data-label="Soul"] .node-dot { border-color: var(--cyber-pink); }
+        .nav-group[data-label="Soul"] .nav-node.active .node-dot { background: var(--cyber-pink); box-shadow: 0 0 15px var(--cyber-pink); }
+        .nav-group[data-label="Final"]::before { color: #fff; }
+        .nav-group[data-label="Final"] .node-dot { border-color: #fff; }
+        .nav-group[data-label="Final"] .nav-node.active .node-dot { background: #fff; box-shadow: 0 0 15px #fff; }
+
+        .nav-node { position: relative; display: flex; align-items: center; margin-bottom: 15px; }
+        .node-dot { width: 9px; height: 9px; transform: rotate(45deg); transition: 0.4s; cursor: pointer; border: 1.5px solid #444; }
+        .nav-node.active .node-dot { transform: scale(1.6) rotate(45deg); }
+        .node-label { position: absolute; left: 35px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #fff; background: rgba(0, 0, 0, 0.9); backdrop-filter: blur(5px); padding: 4px 15px; white-space: nowrap; opacity: 0; transform: translateX(-10px); transition: 0.3s; pointer-events: none; border-left: 3px solid var(--cyber-blue); }
+        .nav-node:hover .node-label { opacity: 1; transform: translateX(0); }
+
+        /* --- 5. 操作提示說明 --- */
+        .instruction-frame { 
+            position: absolute;
+            border: 1.5px solid var(--cyber-blue); background: rgba(0, 5, 10, 1); 
+            padding: 8px 15px; font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: bold; 
+            color: var(--cyber-blue); clip-path: polygon(0 0, 95% 0, 100% 30%, 100% 100%, 5% 100%, 0 70%);
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.3); text-shadow: 0 0 5px var(--cyber-blue);
+            white-space: nowrap; pointer-events: none; z-index: 10002;
+        }
+
+        #neo-container { position: fixed; top: 0; left: 0; z-index: 10001; display: none; flex-direction: column; align-items: flex-start; pointer-events: none; opacity: 0.4; transition: opacity 0.5s ease; }
+        #neo-container.active { opacity: 1; }
+        #neo-sprite { width: 45px; height: 45px; background: rgba(209, 135, 255, 0.2); border: 2.5px solid var(--cyber-pink); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(209, 135, 255, 0.4); pointer-events: auto; }
+        #neo-sprite i { color: var(--cyber-pink); font-size: 20px; }
+
+        #neo-dialog { 
+            position: absolute; left: 60px; top: -30px; width: 320px; padding: 22px; 
+            background: #050505 !important; 
+            border: 3px solid var(--cyber-pink); 
+            clip-path: polygon(0% 10%, 8% 0%, 100% 0%, 100% 100%, 0% 100%); 
+            opacity: 0; transform: translateX(10px); transition: all 0.4s ease; 
+            box-shadow: 0 0 50px rgba(209, 135, 255, 0.7); 
+            z-index: 10003; 
+        }
+        #neo-dialog.show { opacity: 1; transform: translateX(0); }
+        #neo-text { color: #ffffff; font-size: 15px; font-weight: 900; line-height: 1.8; text-shadow: none; letter-spacing: 0.5px; position: relative; z-index: 10005; }
+        #neo-hint { bottom: -45px; left: 0; width: 90px; } 
+
+        #aura-container { position: fixed; bottom: 25px; right: 25px; z-index: 10000; display: flex; flex-direction: column; align-items: flex-end; }
+        #aura-sprite { width: 60px; height: 60px; background: rgba(0, 243, 255, 0.05); border: 2px solid rgba(0, 243, 255, 0.2); border-radius: 14px; display: flex; align-items: center; justify-content: center; cursor: pointer; animation: sprite-float 3s ease-in-out infinite; }
+        #aura-sprite.active { background: var(--cyber-blue); box-shadow: 0 0 40px var(--cyber-blue); }
+        #aura-sprite.active i { color: black; }
+        #aura-hint { position: absolute; top: -45px; right: 0; } 
+        .aura-flash { position: absolute; inset: -10px; background: white; border-radius: 50%; opacity: 0; pointer-events: none; z-index: -1; }
+        @keyframes aura-pop-micro { 0% { transform: scale(0); opacity: 1; } 100% { transform: scale(1.4); opacity: 0; } }
+
+        /* 修正 1: 提升 z-index 確保不被載入層或遮罩擋住 */
+        #aura-dialog { 
+            margin-bottom: 15px; width: 85vw; max-width: 360px; padding: 20px; 
+            background: rgba(5, 5, 10, 1); border: 2px solid var(--cyber-blue); 
+            backdrop-filter: blur(20px); font-size: 13px; line-height: 1.7; color: var(--cyber-blue); 
+            clip-path: polygon(0% 0%, 100% 0%, 100% 85%, 85% 100%, 0% 100%); 
+            display: none; opacity: 0; transform: translateY(20px); transition: all 0.4s ease; 
+            box-shadow: 0 15px 50px rgba(0, 243, 255, 0.3); z-index: 2000000; 
+        }
+        #aura-dialog.show { display: block; opacity: 1; transform: translateY(0); }
+        #aura-input-wrapper { margin-top: 15px; display: flex; gap: 5px; border-top: 1px solid rgba(0, 243, 255, 0.2); padding-top: 12px; }
+        #aura-input { flex: 1; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(0, 243, 255, 0.3); color: var(--cyber-blue); font-size: 11px; padding: 7px 12px; outline: none; }
+        #aura-send { padding: 6px 14px; background: var(--cyber-blue); color: black; font-size: 11px; font-weight: bold; cursor: pointer; }
+
+        /* --- 6. 章節設計 --- */
+        section { min-height: 100vh; padding: 100px 20px; display: flex; align-items: center; justify-content: center; position: relative; border-bottom: 1px solid rgba(255,255,255,0.03); }
+        .reveal { opacity: 0; transform: translateY(40px); transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1); }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+        .grid-canvas { position: absolute; inset: 0; background-image: linear-gradient(rgba(0, 243, 255, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 243, 255, 0.05) 1px, transparent 1px); background-size: 50px 50px; perspective: 1000px; transform: rotateX(55deg) translateY(-100px); opacity: 0.1; z-index: -1; animation: grid-flow 30s linear infinite; }
+        .cyber-card { background: rgba(5, 5, 10, 0.95); backdrop-filter: blur(25px); border: 1px solid rgba(0, 243, 255, 0.2); position: relative; padding: 2.5rem; clip-path: polygon(25px 0%, 100% 0%, 100% calc(100% - 25px), calc(100% - 25px) 100%, 0% 100%, 0% 25px); }
+        .cyber-card::after { content: ""; position: absolute; bottom: 0; right: 0; width: 60px; height: 3px; background: var(--cyber-pink); }
+        .gradient-text { background: linear-gradient(90deg, var(--cyber-blue), var(--cyber-pink)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .tech-tag { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--cyber-blue); border: 1px solid var(--cyber-blue); padding: 2px 12px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px; display: inline-block; }
+        .aura-target { cursor: pointer; transition: filter 0.3s ease; }
+        .aura-target:hover { filter: drop-shadow(0 0 10px var(--cyber-blue)); }
+    </style>
+</head>
+<body class="bg-black">
+
+    <div id="impact-overlay"></div>
+    <div id="time-tunnel"></div>
+
+    <div id="system-loader">
+        <div class="neon-glow">Dreamweaver Initializing</div>
+        <div class="loader-bar-container"><div class="loader-bar-fill" id="loader-fill"></div></div>
+        <div class="loader-status" id="loader-status">DECONSTRUCTING_REALITY...</div>
+        <div id="boot-prompt">[ Press ENTER to SYNK ]</div>
+    </div>
+
+    <div id="main-wrapper">
+        <div class="scanlines"></div>
+        <div class="xp-system"><div class="xp-progress" id="xp-bar"></div></div>
+
+        <nav class="fixed w-full z-[100] top-0 left-0 px-4 py-4 md:px-10 md:py-8 flex justify-between items-center bg-black/40 backdrop-blur-xl border-b border-cyan-500/10">
+            <div class="flex items-center gap-3">
+                <button id="back-btn" onclick="navigateToPortfolio()" style="display:none;" class="flex items-center text-cyan-400 font-mono text-[10px] border border-cyan-400/30 px-3 py-1 hover:bg-cyan-400 hover:text-black transition-all">
+                    <i class="fa-solid fa-chevron-left mr-2"></i>回前頁
+                </button>
+                <div class="w-10 h-10 border-2 border-cyan-400 rotate-45 flex items-center justify-center hover:bg-cyan-400 transition-all duration-700 cursor-crosshair aura-target" onclick="triggerAura('DREAMWEAVER_OS', '這是我的核心意識載體。目前同步率 100%。點擊各模組可獲取技術解析。')">
+                    <i class="fa-solid fa-brain text-cyan-400 -rotate-45 text-sm"></i>
+                </div>
+                <div><h1 class="text-xs md:text-lg font-black tracking-widest text-white uppercase">Dreamweaver_OS</h1></div>
+            </div>
+            <div class="flex items-center gap-10 font-mono text-right">
+                <div>
+                    <p id="current-theme" class="text-[10px] text-cyan-400 font-bold uppercase tracking-widest">Logic</p>
+                    <p id="xp-level" class="text-[9px] md:text-xs text-white mt-1">LVL: <span class="text-pink-500 font-bold">01</span></p>
+                </div>
+            </div>
+        </nav>
+
+        <div class="sidebar">
+            <div class="nav-group" data-label="Logic">
+                <a href="#page1" class="nav-node active" data-id="page1"><div class="node-dot"></div><div class="node-label">01_INTENT</div></a>
+                <a href="#page2" class="nav-node" data-id="page2"><div class="node-dot"></div><div class="node-label">02_CHAIN</div></a>
+                <a href="#page3" class="nav-node" data-id="page3"><div class="node-dot"></div><div class="node-label">03_VITAL</div></a>
+            </div>
+            <div class="nav-group" data-label="Space">
+                <a href="#page4" class="nav-node" data-id="page4"><div class="node-dot"></div><div class="node-label">04_SPATIAL</div></a>
+                <a href="#page5" class="nav-node" data-id="page5"><div class="node-dot"></div><div class="node-label">05_CONTINUUM</div></a>
+                <a href="#page6" class="nav-node" data-id="page6"><div class="node-dot"></div><div class="node-label">06_TRANS</div></a>
+            </div>
+            <div class="nav-group" data-label="Soul">
+                <a href="#page7" class="nav-node" data-id="page7"><div class="node-dot"></div><div class="node-label">07_DESIGN</div></a>
+                <a href="#page8" class="nav-node" data-id="page8"><div class="node-dot"></div><div class="node-label">08_METHOD</div></a>
+                <a href="#page9" class="nav-node" data-id="page9"><div class="node-dot"></div><div class="node-label">09_SENSE</div></a>
+            </div>
+            <div class="nav-group" data-label="Final">
+                <a href="#page10" class="nav-node" data-id="page10"><div class="node-dot"></div><div class="node-label">10_MANIFESTO</div></a>
+            </div>
+        </div>
+
+        <main class="main-content">
+            <section id="page1"><div class="grid-canvas"></div><div class="w-full reveal px-6 grid lg:grid-cols-2 gap-12 items-center"><div><span class="tech-tag">Google_Cloud // Prompt_Art</span><h2 class="text-4xl md:text-6xl font-black mb-8 uppercase tracking-tighter">提示工程：<br><span class="gradient-text">意圖精煉</span></h2><p class="text-gray-400 text-lg border-l-2 border-cyan-500/40 pl-6 font-light italic">「網頁不再是靜態檔案，它是聆聽意圖的有機體。」</p></div><div class="cyber-card font-mono text-[11px] text-cyan-400/70 border-cyan-900/50 min-h-[140px] flex items-center aura-target" onclick="triggerAura('TERMINAL', '正在將您的想像轉化為確定的代碼。AI 是理解您世界觀的共同建築師。')"><div id="terminal-code"></div></div></div></section>
+            
+            <section id="page2" class="bg-cyan-900/5"><div class="w-full reveal px-6 text-center"><h2 class="text-3xl md:text-5xl font-black gradient-text mb-12 uppercase tracking-widest">思維鏈路 / CoT</h2><div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-left"><div class="cyber-card aura-target" onclick="triggerAura('LOGIC_BREAKDOWN', '將請求拆解為邏輯節點。AI 學會思考問題本質。')"><h4 class="text-lg font-black mb-4 uppercase">邏輯拆解</h4><p class="text-xs text-gray-500 font-light leading-relaxed">不再只是反應，而是具備推理深度。</p></div><div class="cyber-card aura-target" onclick="triggerAura('REASONING', '毫秒間進行深度推演。它預見您的需求，提供最直覺的引導。')"><h4 class="text-lg font-black mb-4 uppercase">動態推理</h4><p class="text-xs text-gray-500 font-light leading-relaxed">確保互動具備智慧線索。</p></div><div class="cyber-card aura-target" onclick="triggerAura('FLOW', '進入高度專注的心流狀態。您的感知將與技術回饋達到完美契合。')"><h4 class="text-lg font-black mb-4 uppercase">心流同步</h4><p class="text-xs text-gray-500 font-light leading-relaxed">引導使用者進入高度專注狀態。</p></div></div></div></section>
+            
+            <section id="page3"><div class="max-w-4xl w-full reveal text-center px-6"><h3 class="text-4xl md:text-7xl font-black mb-12 uppercase italic leading-tight">數據生成：<br><span class="gradient-text">有機生命體</span></h3><p class="text-sm md:text-xl text-gray-400 leading-relaxed font-light">每一次加載皆是基因重組。網頁隨您的脈搏跳動。</p></div></section>
+            
+            <section id="page4"><div class="grid-canvas"></div><div class="w-full reveal px-6 flex flex-col lg:flex-row items-center gap-20"><div class="lg:w-1/2 text-center lg:text-left"><span class="tech-tag text-purple-400 border-purple-400/30">AR_PLAZA // Spatial</span><h2 class="text-4xl md:text-6xl font-black mb-8 uppercase italic leading-tight">空間運算：<br><span class="text-purple-400">穿透虛實</span></h2><p class="text-gray-400 text-lg border-l-2 border-purple-500/40 pl-6 font-light">讓數位座標與物理環境擬合。</p></div><div class="lg:w-1/2 w-full aura-target" onclick="triggerAura('SLAM', 'SLAM 正在映射您的空間座標，將城市轉化為劇院舞台。')"><div class="aspect-video cyber-card flex items-center justify-center border-purple-500/40"><i class="fa-solid fa-vr-cardboard text-6xl text-purple-400 animate-pulse"></i></div></div></div></section>
+            
+            <section id="page5" class="bg-gradient-to-b from-transparent via-purple-900/5 to-transparent"><div class="w-full reveal px-6 flex flex-col lg:flex-row gap-16 items-center"><div class="lg:w-1/3 text-center lg:text-left"><h3 class="text-3xl md:text-4xl font-black mb-8 uppercase italic leading-tight">連續帶狀：<br><span class="text-purple-500">場域路徑</span></h3></div><div class="lg:w-2/3 grid grid-cols-2 gap-6 w-full"><div class="cyber-card aura-target text-center" onclick="triggerAura('ANCHOR', '確保虛擬物件鎖定在精確座標，無位移偏差。')"><h4 class="font-bold text-white mb-2 uppercase">全球定錨</h4></div><div class="cyber-card aura-target text-center" onclick="triggerAura('STREAM', '隨移動載入，實現開放世界般的體驗。')"><h4 class="font-bold text-white mb-2 uppercase">流式加載</h4></div></div></div></section>
+            
+            <section id="page6"><div class="w-full reveal px-6 text-center"><h2 class="text-3xl md:text-4xl font-black mb-12 uppercase tracking-[0.4em]">5G_傳輸 // Neural_Link</h2><div class="grid md:grid-cols-3 gap-8"><div class="cyber-card aura-target" onclick="triggerAura('SYNC', '數據低於 10ms 往返。消滅延遲感。')"><i class="fa-solid fa-satellite-dish text-cyan-400 text-3xl mb-6"></i><h4 class="text-base font-black mb-2 uppercase text-center">毫秒同步</h4></div><div class="cyber-card aura-target" onclick="triggerAura('CLOUD', '雲端 GPU 實時渲染。提供電影級畫質。')"><i class="fa-solid fa-cloud-bolt text-purple-400 text-3xl mb-6"></i><h4 class="text-base font-black mb-2 uppercase text-center">雲端渲染</h4></div><div class="cyber-card aura-target" onclick="triggerAura('IOT', '網頁感知並控制智能裝置。')"><i class="fa-solid fa-link text-pink-400 text-3xl mb-6"></i><h4 class="text-base font-black mb-2 uppercase text-center">萬物互聯</h4></div></div></div></section>
+
+            <section id="page7" class="bg-gradient-to-b from-transparent via-pink-900/5 to-transparent"><div class="w-full reveal px-4 md:px-6 grid lg:grid-cols-2 gap-24 items-center"><div class="grid grid-cols-2 gap-6 relative z-10"><div class="cyber-card text-center p-8 aura-target" onclick="triggerAura('IM', 'Immersion (沉浸)：環境的全然包裹感。')"><span class="block text-3xl font-black gradient-text">IM</span></div><div class="cyber-card text-center p-8 mt-8 aura-target" onclick="triggerAura('IN', 'Interaction (互動)：您的每個動作都在形塑數位現實。')"><span class="block text-3xl font-black gradient-text">IN</span></div><div class="cyber-card text-center p-8 aura-target" onclick="triggerAura('IG', 'Imagination (想像)：開啟虛擬與現實交會的敘事空間。')"><span class="block text-3xl font-black gradient-text">IG</span></div><div class="cyber-card text-center p-8 mt-8 aura-target" onclick="triggerAura('ID', 'Identification (帶入感)：投射自我成為角色，建立深層連結。')"><span class="block text-3xl font-black gradient-text">ID</span></div></div><div><span class="tech-tag text-pink-400 border-pink-400/30">Kingone_Philosophy</span><h2 class="text-4xl md:text-6xl font-black mb-8 uppercase tracking-tighter">4I 核心：<br><span class="text-pink-500">沉浸靈魂</span></h2><p class="text-gray-400 text-lg border-l-2 border-pink-500/40 pl-6 font-light text-left">沉浸、互動、想像、帶入感。</p></div></div></section>
+
+            <section id="page8" class="bg-gradient-to-b from-transparent via-cyan-900/5 to-transparent">
+                <div class="w-full reveal px-6">
+                    <div class="flex flex-col md:flex-row items-center gap-10 mb-16">
+                        <h2 class="text-3xl md:text-5xl font-black gradient-text uppercase tracking-widest italic">沉浸式行銷三原則</h2>
+                        <div class="hidden md:block h-px flex-1 bg-gradient-to-r from-cyan-500/40 to-transparent"></div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+                        <div class="cyber-card aura-target" onclick="triggerAura('TECH', '掌握數位技術。')">
+                            <span class="text-cyan-400 font-mono text-[10px] block mb-4">01 // Master Digital Technology</span>
+                            <h4 class="text-lg font-black mb-4 uppercase text-white">掌握數位技術</h4>
+                            <p class="text-xs text-gray-500 leading-relaxed font-light text-left">沉浸式體驗的基礎在於創造強大的「環境重現感」。</p>
+                        </div>
+                        <div class="cyber-card aura-target" onclick="triggerAura('STORY', '設計故事帶入感。')">
+                            <span class="text-pink-400 font-mono text-[10px] block mb-4">02 // Design Story Immersion</span>
+                            <h4 class="text-lg font-black mb-4 uppercase text-white">設計故事帶入感</h4>
+                            <p class="text-xs text-gray-500 leading-relaxed font-light text-left">光有環境是不夠的，必須以「故事」作為主軸。</p>
+                        </div>
+                        <div class="cyber-card aura-target" onclick="triggerAura('RESONANCE', '製造體驗共感。')">
+                            <span class="text-yellow-400 font-mono text-[10px] block mb-4">03 // Create Experience Resonance</span>
+                            <h4 class="text-lg font-black mb-4 uppercase text-white">製造體驗共感</h4>
+                            <p class="text-xs text-gray-500 leading-relaxed font-light text-left">這是沉浸式體驗的最終目標。</p>
+                        </div>
+                    </div>
+                    <div class="p-8 border border-white/10 bg-white/5 clip-path-polygon rounded-lg text-sm md:text-base italic text-gray-300 font-light leading-relaxed">
+                        <p class="mb-4 text-cyan-400 font-bold uppercase tracking-widest">沉浸式舞台劇譬喻 // The Metaphor</p>
+                        <ul class="space-y-3">
+                            <li><strong class="text-cyan-400">數位技術</strong> 是精緻佈景，搭建逼真世界；</li>
+                            <li><strong class="text-pink-400">故事帶入感</strong> 是引人劇本，讓您成為台上主角；</li>
+                            <li><strong class="text-yellow-400">體驗共感</strong> 則是散場後久久激盪不已的後勁與啟發。</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <section id="page9">
+                <div class="w-full reveal px-6 text-center">
+                    <h2 class="text-2xl md:text-4xl font-black mb-12 uppercase italic">SENSE & RESONANCE / 七感共感</h2>
+                    <div class="flex flex-wrap justify-center gap-4 md:gap-8 mb-20">
+                        <div class="w-20 h-20 md:w-28 md:h-28 cyber-card flex items-center justify-center p-0 aura-target" onclick="triggerAura('EYE', '視覺。')"><i class="fa-solid fa-eye text-cyan-400 text-lg md:text-2xl"></i></div>
+                        <div class="w-20 h-20 md:w-28 md:h-28 cyber-card flex items-center justify-center p-0 aura-target" onclick="triggerAura('EAR', '聽覺。')"><i class="fa-solid fa-ear-listen text-pink-400 text-lg md:text-2xl"></i></div>
+                        <div class="w-20 h-20 md:w-28 md:h-28 cyber-card flex items-center justify-center p-0 aura-target" onclick="triggerAura('TOUCH', '觸覺。')"><i class="fa-solid fa-hand-pointer text-green-400 text-lg md:text-2xl"></i></div>
+                        <div class="w-20 h-20 md:w-28 md:h-28 cyber-card flex items-center justify-center p-0 aura-target" onclick="triggerAura('MOVE', '動覺。')"><i class="fa-solid fa-person-running text-blue-400 text-lg md:text-2xl"></i></div>
+                        <div class="w-20 h-20 md:w-28 md:h-28 cyber-card flex items-center justify-center p-0 aura-target" onclick="triggerAura('BALANCE', '平衡覺。')"><i class="fa-solid fa-scale-balanced text-purple-400 text-lg md:text-2xl"></i></div>
+                        <div class="w-20 h-20 md:w-28 md:h-28 cyber-card flex items-center justify-center p-0 aura-target" onclick="triggerAura('SCENT', '嗅覺。')"><i class="fa-solid fa-wind text-yellow-400 text-lg md:text-2xl"></i></div>
+                        <div class="w-20 h-20 md:w-28 md:h-28 cyber-card flex items-center justify-center p-0 aura-target" onclick="triggerAura('EMPATHY', '意念/共感(第七感)：靈魂的共鳴。')"><i class="fa-solid fa-heart-pulse text-white text-lg md:text-2xl"></i></div>
+                    </div>
+                    <h2 class="text-4xl md:text-8xl font-black mb-12 italic uppercase aura-target" onclick="triggerAura('INTIMACY', '當數位光影能讓您被理解，那就是親密感。')">「科技提供<br>正是 <span class="text-pink-500 glitch">親密感</span>」</h2>
+                </div>
+            </section>
+
+            <section id="page10"><div class="grid-canvas"></div><div class="max-w-4xl w-full reveal text-center px-6"><h2 class="text-6xl md:text-9xl font-black mb-12 gradient-text glitch uppercase tracking-tighter">織夢者宣言</h2><div class="cyber-card p-12 text-left border-cyan-400/50"><p class="text-xl md:text-3xl font-black text-cyan-400 border-l-8 border-cyan-400 pl-10 leading-tight">我正編織下一代文明的神經接口。以技術為槳，駛向虛實共感彼岸。</p></div></div></section>
+        </main>
+    </div>
+
+    <div id="neo-container">
+        <div id="neo-dialog">
+            <div class="flex items-center gap-2 mb-3 border-b border-pink-500/30 pb-2">
+                <span class="text-[12px] font-black uppercase text-white tracking-widest">Neo_Companion</span>
+                <span class="w-2 h-2 rounded-full bg-pink-500 animate-pulse shadow-[0_0_10px_#d187ff]"></span>
+            </div>
+            <div id="neo-text"></div> 
+        </div>
+        <div id="neo-sprite"><i class="fa-solid fa-robot"></i></div>
+        <div id="neo-hint" class="instruction-frame">HOTKEY: [Q]</div>
+    </div>
+
+    <div id="aura-container">
+        <div id="aura-dialog">
+            <div class="flex items-center gap-2 mb-2 border-b border-cyan-500/30 pb-1"><span class="text-[10px] font-bold uppercase tracking-widest text-white">Aura_Intelligence</span></div>
+            <div id="aura-text">System Awakened...</div>
+            <div id="aura-input-wrapper"><input type="text" id="aura-input" placeholder="指令輸入..." autocomplete="off"><button id="aura-send" onclick="sendAuraCommand()"><i class="fa-solid fa-paper-plane"></i></button></div>
+        </div>
+        <div id="aura-hint" class="instruction-frame">CALL: [T + 1234]</div>
+        <div id="aura-sprite" onclick="handleSpriteClick()"><div class="aura-flash" id="aura-flash"></div><i class="fa-solid fa-ghost text-xl md:text-2xl text-gray-700 transition-all duration-300"></i></div>
+    </div>
+
+    <script>
+        // --- 相對路徑修正 ---
+        const PORTFOLIO_PATH = "portfolio.html";
+        const FOREST_PATH = "forest.html";
+        
+        let isSystemStarted = false, isLoaderReady = false, isAuraAwake = false;
+        let mouseX = 0, mouseY = 0, neoX = 0, neoY = 0, wakeSeq = "", currentTheme = "Logic";
+
+        const neoDatabase = {
+            LOGIC: ["提示工程不僅是指令，更是與 AI 共同建築世界觀的接口。", "思維鏈 (CoT) 讓代碼擁有了邏輯推演的能力。", "我們正從『機率雲』中修剪出確定性的未來。"],
+            SPACE: ["AR PLAZA 正從點狀濾鏡走向連續帶狀的空間生態系。", "5G 低延遲是消滅虛擬與現實隔閡的最後一塊拼圖。", "每一釐米座標都是敘事的畫布。"],
+            SOUL: ["王一設計的 4I 核心，是讓技術消失、體驗顯影的關鍵。", "李安導演說過，科技最終能提供的是親密感。", "掌握『技術、故事、共感』是沉浸行銷的黃金準則。"],
+            JOKE: ["為什麼機器人不會累？因為它們有恆定的時鐘頻率。", "我剛算了一下，您的游標移動得非常優雅且富有美感。", "你知道嗎？404 其實是在玩捉迷藏。"],
+            QUOTES: ["『設計不僅是外觀，而是運作方式。』— Steve Jobs", "『最好的預測未來的方式就是去創造它。』— Alan Kay"]
+        };
+
+        // --- 修正：回前頁跳轉功能 ---
+        function navigateToPortfolio() { window.location.href = PORTFOLIO_PATH; }
+
+        window.onload = () => {
+            const fill = document.getElementById('loader-fill');
+            const status = document.getElementById('loader-status');
+            const prompt = document.getElementById('boot-prompt');
+            setTimeout(() => { fill.style.width = '100%'; }, 100);
+            setTimeout(() => { isLoaderReady = true; prompt.classList.add('ready'); status.innerText = "READY_FOR_UPLOAD"; }, 2500);
+        };
+
+        window.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; });
+
+        window.addEventListener('keydown', (e) => {
+            const key = e.key.toLowerCase();
+            if (!isSystemStarted && isLoaderReady && e.key === 'Enter') { startSystem(); return; }
+            if (isSystemStarted && key === 'q') triggerNeoDialogue();
+
+            // 修正 2: 僅捕捉單一字元，避免 Shift/Alt 等修飾鍵中斷序列
+            if (e.key.length === 1) { 
+                if(key === 't') {
+                    wakeSeq = "t";
+                } else if(wakeSeq.startsWith('t')) {
+                    wakeSeq += key;
+                    if(wakeSeq === "t1234") { 
+                        wakeAura(); 
+                        wakeSeq = ""; 
+                    }
+                    if(wakeSeq.length > 5) wakeSeq = "";
+                }
+            }
+        });
+
+        function startSystem() {
+            if (isSystemStarted) return;
+            isSystemStarted = true;
+            createTunnelStreaks();
+            const loader = document.getElementById('system-loader');
+            const overlay = document.getElementById('impact-overlay');
+            const tunnel = document.getElementById('time-tunnel');
+            const wrap = document.getElementById('main-wrapper');
+            loader.style.opacity = '0'; overlay.classList.add('tech-ascension'); tunnel.style.display = 'block';
+            setTimeout(() => {
+                loader.style.display = 'none'; tunnel.style.display = 'none'; overlay.style.opacity = "0";
+                wrap.classList.add('visible'); 
+                document.getElementById('back-btn').style.display = 'flex';
+                document.getElementById('neo-container').style.display = 'flex';
+                animateNeo();
+                setTimeout(() => { overlay.style.display = 'none'; }, 600);
+            }, 1200);
+        }
+
+        function animateNeo() {
+            neoX += (mouseX + 35 - neoX) * 0.1; neoY += (mouseY + 35 - neoY) * 0.1;
+            const container = document.getElementById('neo-container');
+            container.style.left = `${neoX}px`; container.style.top = `${neoY}px`;
+            requestAnimationFrame(animateNeo);
+        }
+
+        let neoInteractionIndex = 0, neoTypingTimeout, neoAutoHideTimeout;
+        function triggerNeoDialogue() {
+            const diag = document.getElementById('neo-dialog');
+            const textEl = document.getElementById('neo-text');
+            if (neoTypingTimeout) clearTimeout(neoTypingTimeout);
+            if (neoAutoHideTimeout) clearTimeout(neoAutoHideTimeout);
+            neoInteractionIndex++;
+            let pool;
+            if (neoInteractionIndex % 3 === 1) pool = neoDatabase[currentTheme.toUpperCase()] || neoDatabase.JOKE;
+            else if (neoInteractionIndex % 3 === 2) pool = neoDatabase.QUOTES;
+            else pool = neoDatabase.JOKE;
+            const msg = pool[Math.floor(Math.random() * pool.length)];
+            diag.classList.add('show'); textEl.innerText = "";
+            let i = 0;
+            function type() { if(i < msg.length) { textEl.innerText += msg.charAt(i++); neoTypingTimeout = setTimeout(type, 20); } }
+            type();
+            neoAutoHideTimeout = setTimeout(() => diag.classList.remove('show'), 10000); 
+        }
+
+        function wakeAura() {
+            isAuraAwake = true;
+            document.getElementById('aura-sprite').classList.add('active');
+            // 修正 3: 將醒來後的圖示顏色由黑色 (text-black) 改為青色 (text-cyan-400)，確保在黑色背景中可見
+            document.getElementById('aura-sprite').querySelector('i').className = "fa-solid fa-ghost text-xl md:text-2xl text-cyan-400";
+            triggerAura('AWAKENED', '頻率同步成功。輸入「魔法森林」即可執行躍遷。');
+        }
+        function handleSpriteClick() { if(isAuraAwake) document.getElementById('aura-dialog').classList.toggle('show'); }
+        function triggerAura(title, content) {
+            const diag = document.getElementById('aura-dialog');
+            const text = document.getElementById('aura-text');
+            const flash = document.getElementById('aura-flash');
+            flash.style.animation = 'aura-pop-micro 0.6s forwards'; 
+            diag.classList.add('show'); text.innerHTML = `<strong class="text-white">[${title}]</strong><br>`;
+            let i = 0;
+            function type() { if(i < content.length) { text.innerHTML += content.charAt(i++); setTimeout(type, 20); } }
+            type();
+            setTimeout(() => flash.style.animation = 'none', 600);
+        }
+
+        function sendAuraCommand() {
+            const val = document.getElementById('aura-input').value.trim().toLowerCase();
+            if(val === "魔法森林") {
+                window.location.href = FOREST_PATH;
+            }
+            // --- 修正：AURA 指令跳轉至 portfolio.html ---
+            else if(val === "回前頁") navigateToPortfolio();
+            else if(val === "logic") document.getElementById('page1').scrollIntoView({ behavior: 'smooth' });
+            else if(val === "space") document.getElementById('page4').scrollIntoView({ behavior: 'smooth' });
+            else if(val === "soul") document.getElementById('page7').scrollIntoView({ behavior: 'smooth' });
+            else if(val === "final") document.getElementById('page10').scrollIntoView({ behavior: 'smooth' });
+            document.getElementById('aura-input').value = "";
+        }
+
+        function createTunnelStreaks() {
+            const tunnel = document.getElementById('time-tunnel');
+            for(let i=0; i<100; i++) {
+                const streak = document.createElement('div'); streak.className = 'tunnel-streak';
+                const rotation = Math.random() * 360, duration = 0.4 + Math.random() * 0.5;
+                streak.style.setProperty('--r', rotation + 'deg');
+                streak.style.animation = `streak-fast ${duration}s linear infinite`;
+                tunnel.appendChild(streak);
+            }
+        }
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const id = entry.target.getAttribute('id');
+                    document.querySelectorAll('.nav-node').forEach(node => { node.classList.remove('active'); if (node.getAttribute('data-id') === id) node.classList.add('active'); });
+                    document.getElementById('xp-bar').style.width = `${(parseInt(id.replace('page', '')) / 10) * 100}%`;
+                    const pageNum = parseInt(id.replace('page', ''));
+                    currentTheme = pageNum <= 3 ? 'Logic' : pageNum <= 6 ? 'Space' : pageNum <= 9 ? 'Soul' : 'Final';
+                    document.getElementById('current-theme').innerText = currentTheme;
+                    entry.target.querySelector('.reveal')?.classList.add('active');
+                    if(id === 'page1' && !entry.target.dataset.typed) {
+                        let i = 0, text = "> ANALYZING_NEURAL_LINK...\n> SYNC_INTENT: SUCCESS\n> STATUS: ORGANIC_EVOLUTION_ACTIVE";
+                        function type() { if(i < text.length) { document.getElementById('terminal-code').innerText += text.charAt(i++); setTimeout(type, 30); } }
+                        type(); entry.target.dataset.typed = "true";
+                    }
+                }
+            });
+        }, { threshold: 0.3 });
+        document.querySelectorAll('section').forEach(s => observer.observe(s));
+    </script>
+</body>
+</html>

@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>火龍快跑 - 五大魔王篇</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5; 
+            color: #333;
+            font-family: 'Press Start 2P', cursive;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: none;
+        }
+
+        #game-container {
+            position: relative;
+            box-shadow: 12px 12px 0px rgba(0,0,0,0.15); 
+            border: 4px solid #000; 
+            background-color: #000; 
+            image-rendering: pixelated;
+            border-radius: 0; 
+            max-width: 100%;
+            max-height: 100%;
+            aspect-ratio: 2 / 1;
+            overflow: hidden;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        #ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            align-items: flex-start;
+        }
+
+        .score-board {
+            font-size: 16px;
+            color: #555; 
+            text-shadow: 2px 2px 0 #fff; 
+            margin-bottom: 5px;
+        }
+
+        .boss-hp-bar {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60%;
+            height: 20px;
+            background: #333;
+            border: 2px solid #fff; 
+            display: none; 
+        }
+        .boss-hp-fill {
+            width: 100%;
+            height: 100%;
+            background: #e74c3c;
+            transition: width 0.1s;
+        }
+        .boss-name {
+            position: absolute;
+            top: -20px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            color: #fff;
+            font-size: 10px;
+            text-shadow: 2px 2px 0 #000; 
+        }
+
+        /* === GAME OVER 介面 === */
+        #game-over-screen {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #ffffff; 
+            padding: 30px 50px; 
+            text-align: center;
+            border-radius: 0; 
+            box-shadow: 12px 12px 0px rgba(0,0,0,0.2); 
+            color: #333; 
+            display: none;
+            pointer-events: auto;
+            width: 85%; 
+            max-width: 500px; 
+            box-sizing: border-box;
+            z-index: 20;
+            border: 4px solid #000; 
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        /* === 修改處：復古街機按鈕風格 (紫藍色版) === */
+        button {
+            background-color: #5c7cfa; /* 修改處：紫藍色 (Iris/Slate Blue) */
+            color: #fff; 
+            border: 4px solid #000; 
+            padding: 20px 30px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 16px; 
+            cursor: pointer;
+            margin-top: 30px;
+            position: relative;
+            border-radius: 0; 
+            box-shadow: 8px 8px 0px #000; 
+            text-transform: uppercase;
+            transition: all 0.05s; 
+            font-weight: bold;
+        }
+        
+        button:hover { 
+            background-color: #3d3ddb; /* 修改處：懸停變亮一點 */
+            transform: translate(-2px, -2px); 
+            box-shadow: 10px 10px 0px #000; 
+        }
+        
+        button:active {
+            transform: translate(6px, 6px); 
+            box-shadow: 2px 2px 0px #000; 
+            background-color: #5043b5; /* 修改處：按下變深 */
+        }
+
+        button:hover::before { content: "> "; animation: blink 0.8s infinite steps(2); }
+        button:hover::after { content: " <"; animation: blink 0.8s infinite steps(2); }
+
+        /* 手機版觸控提示 */
+        .touch-zone-hint { display: none; }
+        @media (hover: none) and (pointer: coarse) {
+            .touch-zone-hint {
+                display: flex;
+                position: absolute;
+                bottom: 10px;
+                width: 100%;
+                justify-content: space-between;
+                font-size: 10px;
+                color: rgba(0,0,0,0.3);
+                padding: 0 20px;
+                box-sizing: border-box;
+                font-weight: bold;
+                pointer-events: none;
+            }
+            .desktop-hint { display: none; }
+        }
+        
+        .desktop-hint {
+            font-size: 10px;
+            color: rgba(0,0,0,0.5);
+            text-align: right;
+            line-height: 1.6;
+        }
+        
+        .key-badge {
+            display: inline-block;
+            background: #333;
+            color: #fff;
+            padding: 2px 4px;
+            font-size: 10px;
+            margin: 0 2px;
+        }
+
+        .watermark {
+            position: absolute;
+            bottom: 4px;
+            right: 6px;
+            font-size: 8px; 
+            color: rgba(0, 0, 0, 0.15); 
+            font-family: 'Press Start 2P', cursive;
+            pointer-events: none;
+            z-index: 10;
+            user-select: none;
+        }
+
+        /* 強制橫屏提示遮罩 */
+        #rotate-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: #2c3e50;
+            z-index: 1000;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        @media screen and (orientation: portrait) and (max-width: 900px) {
+            #rotate-overlay { display: flex; }
+            #game-container { display: none; } 
+        }
+        
+        .rotate-icon {
+            font-size: 40px;
+            margin-bottom: 20px;
+            animation: rotate-anim 2s infinite;
+        }
+        
+        @keyframes rotate-anim {
+            0% { transform: rotate(0deg); }
+            50% { transform: rotate(-90deg); }
+            100% { transform: rotate(-90deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 旋轉提示遮罩 -->
+    <div id="rotate-overlay">
+        <div class="rotate-icon">📱</div>
+        <p style="line-height: 1.5;">PLEASE ROTATE<br>YOUR DEVICE</p>
+        <p style="font-size: 10px; margin-top: 20px; color: #aaa;">請將手機轉為橫向以進行遊戲</p>
+    </div>
+
+    <div id="game-container">
+        <canvas id="gameCanvas" width="800" height="400"></canvas>
+        
+        <div id="ui-layer">
+            <div class="top-bar">
+                <div>
+                    <div class="score-board">SCORE: <span id="score">0</span></div>
+                    <div class="score-board" style="font-size: 12px; color: #e67e22;">LEVEL: <span id="level-display">1</span>-5</div>
+                </div>
+                
+                <div class="desktop-hint">
+                    <div><span class="key-badge">↑</span> JUMP (x2)</div>
+                    <div><span class="key-badge">↓</span> DROP</div>
+                    <div><span class="key-badge">CTRL</span> FIRE</div>
+                </div>
+            </div>
+            
+            <div class="boss-hp-bar" id="boss-hp-bar">
+                <div class="boss-name" id="boss-name">BOSS NAME</div>
+                <div class="boss-hp-fill" id="boss-hp-fill"></div>
+            </div>
+
+            <div class="touch-zone-hint">
+                <div>← TAP: JUMP / SWIPE ↓: DROP</div>
+                <div>TAP: FIRE →</div>
+            </div>
+
+            <div class="watermark">製作者:ss123bb40</div>
+        </div>
+
+        <div id="game-over-screen">
+            <h1 style="color: #ff6b6b; margin-bottom: 20px; font-size: 24px; text-shadow: 2px 2px 0 #eee;">GAME OVER</h1>
+            <p style="color: #555; margin-bottom: 10px;">SCORE</p>
+            <p style="font-size: 24px; color: #333; margin-bottom: 20px;"><span id="final-score">0</span></p>
+            <p style="font-size: 10px; color: #888; margin-top: 5px;">LEVEL REACHED: <span id="final-level">1</span></p>
+            <button onclick="startGame()">TRY AGAIN</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        ctx.imageSmoothingEnabled = false;
+
+        const scoreEl = document.getElementById('score');
+        const levelEl = document.getElementById('level-display');
+        const finalScoreEl = document.getElementById('final-score');
+        const finalLevelEl = document.getElementById('final-level');
+        const gameOverScreen = document.getElementById('game-over-screen');
+        const bossHpBar = document.getElementById('boss-hp-bar');
+        const bossHpFill = document.getElementById('boss-hp-fill');
+        const bossNameEl = document.getElementById('boss-name');
+
+        const GROUND_Y = 340; 
+        const GRAVITY = 0.6;
+        const JUMP_STRENGTH = -13;
+        const INITIAL_SPEED = 4; 
+        const SPEED_INCREMENT = 0.0005; 
+        const PIXEL_SIZE = 4; 
+        const MAX_LEVELS = 5;
+        const POINTS_PER_LEVEL = 8000; 
+
+        // 顏色配置
+        const COLORS = {
+            bgLevels: ['#f2f2f2', '#f39c12', '#8e44ad', '#2c3e50', '#c0392b'], 
+            ground: '#333',
+            dino: '#2ecc71',
+            dinoBelly: '#a9dfbf',
+            fire: '#e67e22',
+            boss1: '#c0392b',
+            boss2: '#f1c40f',
+            boss3: '#7f8c8d',
+            boss4: '#8e44ad',
+            boss5: '#95a5a6',
+            bossProjectile: '#f1c40f',
+            bossLaser: '#e056fd',
+            monster: '#9b59b6',
+            slime: '#27ae60',
+            ghost: '#bdc3c7',
+            spider: '#1abc9c', 
+            buildingBlack: '#2d3436', 
+            buildingGray: '#636e72',  
+            buildingDark: '#1a252f',
+            window: '#f1c40f',
+            alert: '#e74c3c',
+            floatText: '#fff' 
+        };
+
+        // === 點陣圖 ===
+        const SPRITE_DINO_RUN1 = ["      111111","     1133111","     1111111","     111111 ","1   11111   ","11 112221   ","111112221   "," 1111111    ","  11  11    ","  11   1    "];
+        const SPRITE_DINO_RUN2 = ["      111111","     1133111","     1111111","     111111 ","1   11111   ","11 112221   ","111112221   "," 1111111    ","   1  11    ","   1  11    "];
+        const SPRITE_DINO_JUMP = ["      111111","     1133111","     1111111","     111111 ","1   11111   ","11 112221   ","111112221   "," 1111111    ","  11  1     ","   1        "];
+        const SPRITE_MONSTER = ["1   1   1"," 1 1 1 1 "," 1111111 ","  13131  ","   111   ","    1    "];
+        const SPRITE_SLIME = ["        ","   111  ","  11111 "," 1313111","11111111","11111111"];
+        const SPRITE_GHOST = ["  1111  "," 111111 "," 131131 "," 111111 "," 111111 "," 1 1 1 1"];
+        const SPRITE_SPIDER = ["  1  1  "," 111111 ","11133111"," 111111 ","1 1  1 1"];
+        const SPRITE_CLOUD = ["   11111    ","  1111111   "," 111111111  ","11111111111 "," 111111111  "];
+        
+        const SPRITE_BOSS_1 = ["            1111","          111331","         1111111","   11   1111111 ","  1111111111111 "," 111111111111111"," 1111111111111  ","  1111111111    ","   1 1  1 1     ","   1 1  1 1     ","   1    1       ","                "];
+        const SPRITE_BOSS_2 = ["  11     11     "," 1111   1111    ","111111 111111   ","  111111111     ","   11133111     "," 11111111111    ","1111111111111   ","   1111111      ","    11 11       ","     1 1        ","      1         ","                "];
+        const SPRITE_BOSS_3 = ["     111111     ","    11111111    ","   1113333111   ","   1111111111   ","  111111111111  ","  1 11111111 1  "," 11 11111111 11 "," 11 11111111 11 ","    11    11    ","    11    11    ","   1111  1111   ","                "];
+        const SPRITE_BOSS_4 = ["      1111      ","    11111111    ","   1111331111   ","  111133331111  ","  111133331111  ","   1111331111   ","    11111111    ","      1111      ","     1 1 1 1    ","    1  1 1  1   ","   1   1 1   1  ","                "];
+        const SPRITE_BOSS_5 = ["              1 ","            1111","          111311","         1111111","        1111111 ","  1111111111111 "," 111111111111111"," 1111111111111  ","  1111111111    ","   111  111     ","   111  111     ","   111  111     "];
+
+        function drawSprite(ctx, pixelMap, x, y, size, colorMap, flip = false) {
+            const h = pixelMap.length;
+            const w = pixelMap[0].length;
+            for (let row = 0; row < h; row++) {
+                for (let col = 0; col < w; col++) {
+                    const char = pixelMap[row][col];
+                    if (char !== ' ') {
+                        ctx.fillStyle = colorMap[char] || '#fff';
+                        let drawX = flip ? x + (w - 1 - col) * size : x + col * size;
+                        ctx.fillRect(drawX, y + row * size, size, size);
+                    }
+                }
+            }
+        }
+
+        let gameRunning = false;
+        let score = 0;
+        let level = 1;
+        let gameSpeed = INITIAL_SPEED;
+        let scrollSpeed = INITIAL_SPEED; 
+        let frameCount = 0;
+        let obstacles = [];
+        let projectiles = [];
+        let bossProjectiles = [];
+        let particles = [];
+        let floatingTexts = [];
+        let spawnTimer = 0;
+        let dino;
+        let boss = null;
+        
+        const STATE_RUNNING = 0;
+        const STATE_BOSS_WARNING = 1;
+        const STATE_BOSS_FIGHT = 2;
+        const STATE_LEVEL_TRANSITION = 3;
+        let gameState = STATE_RUNNING;
+
+        let stateTimer = 0;
+        let shakeTime = 0;
+        
+        const keys = {};
+
+        class FloatingText {
+            constructor(x, y, text, color) {
+                this.x = x;
+                this.y = y;
+                this.text = text;
+                this.color = color; 
+                if (level === 1 && color === '#fff') this.color = '#333';
+                this.life = 1.0;
+                this.dy = -1.5;
+            }
+            update() {
+                this.y += this.dy;
+                this.life -= 0.02;
+            }
+            draw() {
+                ctx.globalAlpha = Math.max(0, this.life);
+                ctx.fillStyle = this.color;
+                ctx.font = "16px 'Press Start 2P'";
+                ctx.fillText(this.text, this.x, this.y);
+                ctx.globalAlpha = 1.0;
+            }
+        }
+
+        class Boss {
+            constructor(level) {
+                if (level === 1) {
+                    this.w = 96; 
+                    this.h = 72; 
+                    this.pixelScale = 6; 
+                } else {
+                    this.w = 64; 
+                    this.h = 48; 
+                    this.pixelScale = 4;
+                }
+
+                this.x = canvas.width + 50;
+                this.targetX = canvas.width - 150 - (level === 1 ? 50 : 0); 
+                this.y = 100;
+                this.dy = 2;
+                
+                this.hpMax = 20 + (level * 25); 
+                this.hp = this.hpMax;
+                this.shootTimer = 0;
+                this.state = 'entering'; // entering, fighting
+                this.colorMap = { '1': COLORS.boss, '3': '#ffff00' };
+            }
+
+            update() {
+                if (this.state === 'entering') {
+                    if (this.x > this.targetX) {
+                        this.x -= 2;
+                    } else {
+                        this.state = 'fighting';
+                        bossHpBar.style.display = 'block';
+                    }
+                } 
+                else if (this.state === 'fighting') {
+                    this.y += this.dy;
+                    if (this.y < 50 || this.y > 250) this.dy *= -1;
+
+                    this.shootTimer++;
+                    let shootInterval = Math.max(60, 120 - level * 10); 
+                    if (this.shootTimer > shootInterval) {
+                        this.shoot();
+                        this.shootTimer = 0;
+                    }
+                }
+                
+                bossHpFill.style.width = (this.hp / this.hpMax * 100) + '%';
+            }
+
+            shoot() {
+                let angle = Math.atan2((dino.y + dino.h/2) - (this.y + this.h/2), (dino.x + dino.w/2) - (this.x));
+                let speed = 6 + level;
+                bossProjectiles.push({
+                    x: this.x,
+                    y: this.y + this.h/2,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    w: 16, h: 16
+                });
+            }
+
+            draw() {
+                drawSprite(ctx, SPRITE_BOSS, this.x, this.y, this.pixelScale, this.colorMap, true); 
+            }
+        }
+
+        class Dino {
+            constructor() {
+                this.w = 48; this.h = 40;
+                this.x = 60;
+                this.y = GROUND_Y - this.h;
+                this.dy = 0;
+                this.isGrounded = true;
+                this.jumpCount = 0; this.maxJumps = 2;
+                this.shootCooldown = 0;
+                this.runTimer = 0; this.runFrame = 0;
+            }
+            jump() {
+                if (this.jumpCount < this.maxJumps) {
+                    this.dy = JUMP_STRENGTH;
+                    this.isGrounded = false;
+                    this.jumpCount++;
+                    createParticles(this.x + this.w/2, this.y + this.h, COLORS.ground, 4);
+                }
+            }
+            update() {
+                this.runTimer++;
+                if (this.runTimer > 8) { this.runFrame = 1 - this.runFrame; this.runTimer = 0; }
+                this.y += this.dy;
+                
+                if (keys['ArrowDown'] && !this.isGrounded) {
+                    this.dy += 1.5; 
+                }
+
+                if (this.y + this.h < GROUND_Y) {
+                    this.dy += GRAVITY;
+                    this.isGrounded = false;
+                } else {
+                    let overPit = false;
+                    if (gameState === STATE_RUNNING || gameState === STATE_BOSS_WARNING) {
+                         obstacles.forEach(obs => {
+                            if (obs.type === 'pit' && this.x + this.w/2 > obs.x && this.x + this.w/2 < obs.x + obs.w) {
+                                overPit = true;
+                            }
+                        });
+                    }
+
+                    if (overPit) {
+                        this.dy += GRAVITY;
+                        this.isGrounded = false;
+                    } else {
+                        this.dy = 0;
+                        this.isGrounded = true;
+                        this.jumpCount = 0;
+                        this.y = GROUND_Y - this.h;
+                    }
+                }
+
+                if (this.y > canvas.height) gameOver();
+
+                if (this.shootCooldown > 0) this.shootCooldown--;
+                if (keys['Control'] && this.shootCooldown <= 0) {
+                    this.shoot();
+                    this.shootCooldown = 25;
+                }
+            }
+            shoot() {
+                projectiles.push({x: this.x + this.w, y: this.y + this.h * 0.4, marked: false});
+            }
+            draw() {
+                let sprite = !this.isGrounded ? SPRITE_DINO_JUMP : (this.runFrame ? SPRITE_DINO_RUN2 : SPRITE_DINO_RUN1);
+                drawSprite(ctx, sprite, this.x, this.y, 4, {'1': COLORS.dino, '2': COLORS.dinoBelly, '3': '#000'});
+                if(this.shootCooldown > 0) {
+                    ctx.fillStyle = '#999'; ctx.fillRect(this.x, this.y-10, this.w, 4);
+                    ctx.fillStyle = COLORS.fire; ctx.fillRect(this.x, this.y-10, this.w * (1-this.shootCooldown/25), 4);
+                }
+            }
+        }
+
+        class Obstacle {
+            constructor() {
+                this.markedForDeletion = false;
+                let rand = Math.random();
+                this.x = canvas.width + 100;
+                
+                let currentLevelScore = score % POINTS_PER_LEVEL;
+                let monsterChance = 0.4 + (level * 0.05); 
+
+                if (rand < monsterChance) {
+                    this.isMonster = true;
+                    let typeRand = Math.random();
+                    if (currentLevelScore > 6000) {
+                         if (typeRand < 0.25) this.type = 'monster'; else if (typeRand < 0.5) this.type = 'slime'; else if (typeRand < 0.75) this.type = 'ghost'; else this.type = 'spider';
+                    } else if (currentLevelScore > 3000) {
+                        if(typeRand < 0.33) this.type = 'monster'; else if(typeRand < 0.66) this.type = 'slime'; else this.type = 'ghost';
+                    } else if (currentLevelScore > 1500) {
+                        if(typeRand < 0.5) this.type = 'monster'; else this.type = 'slime';
+                    } else {
+                        this.type = 'monster';
+                    }
+
+                    if (this.type === 'monster') { this.w = 40; this.h = 24; this.y = GROUND_Y - 50 - Math.random() * 80; }
+                    else if (this.type === 'slime') { this.w = 32; this.h = 24; this.y = GROUND_Y - 24; }
+                    else if (this.type === 'ghost') { this.w = 32; this.h = 24; this.y = GROUND_Y - 120 - Math.random() * 40; }
+                    else if (this.type === 'spider') { this.w = 32; this.h = 20; this.y = GROUND_Y - 20; }
+                } else if (rand < monsterChance + 0.2) { 
+                    this.type = 'pit'; this.w = 80 + Math.random() * 40; this.h = 100; this.y = GROUND_Y;
+                } else {
+                    this.type = 'building'; 
+                    this.w = 50 + Math.random()*30; 
+                    this.h = 60 + Math.random()*60; 
+                    this.y = GROUND_Y - this.h;
+                    this.isBlack = Math.random() > 0.5;
+                }
+            }
+            update() {
+                if (gameState === STATE_RUNNING || gameState === STATE_BOSS_WARNING) {
+                    this.x -= scrollSpeed;
+                } else if (gameState === STATE_BOSS_FIGHT) {
+                    this.x -= 8; 
+                }
+                
+                if (this.x + this.w < -200) this.markedForDeletion = true;
+                
+                if (this.type === 'monster') this.y += Math.sin(frameCount * 0.1) * 2;
+                if (this.type === 'ghost') { this.x -= Math.sin(frameCount * 0.05) * 1.5; this.y += Math.cos(frameCount * 0.05); }
+                if (this.type === 'spider') { if (frameCount % 60 < 30) this.x -= 2; }
+            }
+            draw() {
+                if (this.isMonster) {
+                    let sprite = SPRITE_MONSTER; let color = COLORS.monster;
+                    if(this.type === 'slime') { sprite = SPRITE_SLIME; color = COLORS.slime; }
+                    if(this.type === 'ghost') { sprite = SPRITE_GHOST; color = COLORS.ghost; ctx.globalAlpha = 0.7; }
+                    if(this.type === 'spider') { sprite = SPRITE_SPIDER; color = COLORS.spider; }
+                    
+                    drawSprite(ctx, sprite, this.x, this.y, 4, {'1': color, '3': '#ff0000'});
+                    ctx.globalAlpha = 1.0;
+                } else if (this.type === 'building') {
+                    ctx.fillStyle = this.isBlack ? COLORS.buildingBlack : COLORS.buildingGray;
+                    ctx.fillRect(this.x, this.y, this.w, this.h);
+                    ctx.fillStyle = COLORS.window;
+                    for(let i=6; i<this.w-12; i+=16) for(let j=10; j<this.h-10; j+=20) if(Math.random()>0.4) ctx.fillRect(this.x+i, this.y+j, 8, 8);
+                }
+            }
+        }
+
+        function createParticles(x, y, color, count) {
+            for(let i=0; i<count; i++) particles.push({x:x, y:y, vx:(Math.random()-0.5)*4, vy:(Math.random()-0.5)*4, life:1.0, color:color});
+        }
+
+        function init() {
+            dino = new Dino();
+            obstacles = []; projectiles = []; bossProjectiles = []; particles = []; floatingTexts = [];
+            score = 0; level = 1;
+            gameSpeed = INITIAL_SPEED; scrollSpeed = INITIAL_SPEED;
+            gameState = STATE_RUNNING;
+            boss = null;
+            bossHpBar.style.display = 'none';
+            
+            gameRunning = true;
+            scoreEl.textContent = 0;
+            levelEl.textContent = 1;
+            gameOverScreen.style.display = 'none';
+            requestAnimationFrame(animate);
+        }
+
+        function spawnObstacle() {
+            if (gameState !== STATE_RUNNING) return;
+
+            spawnTimer--;
+            if (spawnTimer <= 0) {
+                obstacles.push(new Obstacle());
+                
+                let baseGap = 45; 
+                let randomGap = 35; 
+                if (level === 1) { baseGap = 100; randomGap = 70; } 
+                else if (level === 2) { baseGap = 70; randomGap = 50; } 
+                
+                spawnTimer = (baseGap + Math.random() * randomGap) * (INITIAL_SPEED / gameSpeed);
+            }
+        }
+
+        function update() {
+            if (!gameRunning) return;
+
+            if (gameState === STATE_RUNNING) {
+                scrollSpeed = gameSpeed;
+                gameSpeed += SPEED_INCREMENT; 
+                
+                if (score > level * POINTS_PER_LEVEL) {
+                    gameState = STATE_BOSS_WARNING;
+                    stateTimer = 180; 
+                }
+            } 
+            else if (gameState === STATE_BOSS_WARNING) {
+                scrollSpeed *= 0.95;
+                stateTimer--;
+                if (stateTimer <= 0) {
+                    gameState = STATE_BOSS_FIGHT;
+                    scrollSpeed = 0; 
+                    boss = new Boss(level); 
+                }
+            }
+            else if (gameState === STATE_BOSS_FIGHT) {
+                if (boss) {
+                    boss.update();
+                    if (boss.hp <= 0) {
+                        score += 2000;
+                        floatingTexts.push(new FloatingText(boss.x, boss.y, "DEFEATED!", "#fff"));
+                        createParticles(boss.x + 30, boss.y + 30, COLORS.boss1, 30);
+                        boss = null;
+                        bossHpBar.style.display = 'none';
+                        gameState = STATE_LEVEL_TRANSITION;
+                        stateTimer = 120; 
+                    }
+                }
+            }
+            else if (gameState === STATE_LEVEL_TRANSITION) {
+                stateTimer--;
+                if (stateTimer <= 0) {
+                    if (level < MAX_LEVELS) {
+                        level++;
+                        levelEl.textContent = level;
+                        gameSpeed = INITIAL_SPEED + (level - 1); 
+                        scrollSpeed = gameSpeed;
+                        gameState = STATE_RUNNING;
+                        obstacles = [];
+                        projectiles = [];
+                        bossProjectiles = [];
+                    } else {
+                        gameRunning = false;
+                        finalScoreEl.textContent = score + " (MAX)";
+                        gameOverScreen.innerHTML = `<h1>YOU WON!</h1><p>SCORE: ${score}</p><button onclick="startGame()">PLAY AGAIN</button>`;
+                        gameOverScreen.style.display = 'block';
+                    }
+                }
+            }
+
+            dino.update();
+            spawnObstacle();
+
+            obstacles.forEach(o => o.update());
+            obstacles = obstacles.filter(o => !o.markedForDeletion);
+
+            projectiles.forEach(p => { p.x += 10; if(Math.random()>0.5) createParticles(p.x, p.y, COLORS.fire, 1); });
+            projectiles = projectiles.filter(p => p.x < canvas.width);
+
+            bossProjectiles.forEach(p => { 
+                p.x += p.vx; p.y += p.vy; 
+                if (p.gravity) p.vy += p.gravity; 
+                if(Math.random()>0.5) createParticles(p.x, p.y, p.color || COLORS.bossProjectile, 1); 
+            });
+            bossProjectiles = bossProjectiles.filter(p => p.x > 0 && p.x < canvas.width && p.y > 0 && p.y < canvas.height);
+
+            particles.forEach(p => { p.x+=p.vx; p.y+=p.vy; p.life-=0.05; });
+            particles = particles.filter(p => p.life > 0);
+            
+            floatingTexts.forEach(t => t.update());
+            floatingTexts = floatingTexts.filter(t => t.life > 0);
+
+            checkCollisions();
+
+            if (gameState === STATE_RUNNING) score++; 
+            scoreEl.textContent = score;
+            if(shakeTime > 0) shakeTime--;
+        }
+
+        function checkCollisions() {
+            projectiles.forEach(proj => {
+                if (proj.marked) return;
+                obstacles.forEach(obs => {
+                    if (obs.isMonster && !obs.markedForDeletion) {
+                        if (rectIntersect(proj.x, proj.y, 12, 12, obs.x, obs.y, obs.w, obs.h)) {
+                            obs.markedForDeletion = true;
+                            proj.marked = true;
+                            score += 100;
+                            createParticles(obs.x+obs.w/2, obs.y+obs.h/2, COLORS.monster, 8);
+                            floatingTexts.push(new FloatingText(obs.x, obs.y, "+100", "#fff"));
+                        }
+                    }
+                });
+                if (gameState === STATE_BOSS_FIGHT && boss && boss.state === 'fighting') {
+                    if (rectIntersect(proj.x, proj.y, 12, 12, boss.x, boss.y, boss.w, boss.h)) {
+                        boss.hp -= 2; 
+                        proj.marked = true;
+                        createParticles(proj.x, proj.y, '#fff', 2);
+                        shakeTime = 2;
+                    }
+                }
+            });
+
+            if (gameState === STATE_BOSS_FIGHT) {
+                bossProjectiles.forEach(bp => {
+                    if (rectIntersect(bp.x, bp.y, bp.w, bp.h, dino.x, dino.y, dino.w, dino.h)) {
+                        gameOver();
+                    }
+                });
+            }
+
+            obstacles.forEach(obs => {
+                if (obs.type !== 'pit') {
+                    if (rectIntersect(dino.x+8, dino.y+8, dino.w-16, dino.h-16, obs.x+4, obs.y+4, obs.w-8, obs.h-8)) {
+                        gameOver();
+                    }
+                }
+            });
+            projectiles = projectiles.filter(p => !p.marked);
+        }
+
+        function rectIntersect(x1, y1, w1, h1, x2, y2, w2, h2) {
+            return x2 < x1 + w1 && x2 + w2 > x1 && y2 < y1 + h1 && y2 + h2 > y1;
+        }
+
+        function draw() {
+            ctx.save();
+            if (shakeTime > 0) ctx.translate((Math.random()-0.5)*5, (Math.random()-0.5)*5);
+
+            ctx.fillStyle = COLORS.bgLevels[(level - 1) % COLORS.bgLevels.length];
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            let cloudOffset = gameState === STATE_BOSS_FIGHT ? 0 : frameCount * 0.2;
+            let cloudColor = (level === 1) ? '#e0e0e0' : '#ecf0f1';
+            drawSprite(ctx, SPRITE_CLOUD, canvas.width - (cloudOffset % (canvas.width+100)), 80, 4, {'1': cloudColor});
+
+            ctx.fillStyle = COLORS.ground;
+            if (gameState === STATE_RUNNING || gameState === STATE_BOSS_WARNING) {
+                let drawX = 0;
+                let pits = obstacles.filter(o => o.type === 'pit').sort((a,b)=>a.x-b.x);
+                pits.forEach(p => {
+                    if(p.x > drawX) ctx.fillRect(drawX, GROUND_Y, p.x - drawX, canvas.height - GROUND_Y);
+                    drawX = p.x + p.w;
+                });
+                if(drawX < canvas.width) ctx.fillRect(drawX, GROUND_Y, canvas.width - drawX, canvas.height - GROUND_Y);
+            } else {
+                ctx.fillRect(0, GROUND_Y, canvas.width, canvas.height - GROUND_Y);
+            }
+
+            obstacles.forEach(o => o.draw());
+            if (boss) boss.draw();
+            
+            dino.draw();
+            
+            projectiles.forEach(p => {
+                ctx.fillStyle = COLORS.fire; ctx.fillRect(p.x, p.y, 12, 12);
+                ctx.fillStyle = '#fff'; ctx.fillRect(p.x+4, p.y+4, 4, 4);
+            });
+            
+            bossProjectiles.forEach(p => {
+                ctx.fillStyle = p.color || COLORS.bossProjectile; ctx.fillRect(p.x, p.y, p.w, p.h);
+            });
+
+            particles.forEach(p => {
+                ctx.globalAlpha = p.life; ctx.fillStyle = p.color; ctx.fillRect(p.x, p.y, 4, 4); ctx.globalAlpha = 1.0;
+            });
+
+            floatingTexts.forEach(t => t.draw());
+
+            if (gameState === STATE_BOSS_WARNING) {
+                if (Math.floor(Date.now() / 200) % 2 === 0) {
+                    ctx.fillStyle = COLORS.alert;
+                    ctx.font = "30px 'Press Start 2P'";
+                    ctx.textAlign = 'center';
+                    ctx.fillText("WARNING", canvas.width/2, canvas.height/2 - 20);
+                    ctx.fillText("BOSS APPROACHING", canvas.width/2, canvas.height/2 + 20);
+                    ctx.textAlign = 'left';
+                }
+            }
+            
+            if (gameState === STATE_LEVEL_TRANSITION) {
+                ctx.fillStyle = '#333'; 
+                if (level > 1) ctx.fillStyle = '#fff'; 
+                
+                ctx.font = "30px 'Press Start 2P'";
+                ctx.textAlign = 'center';
+                ctx.fillText("LEVEL COMPLETE!", canvas.width/2, canvas.height/2);
+                ctx.textAlign = 'left';
+            }
+
+            ctx.restore();
+        }
+
+        function animate() {
+            if (!gameRunning) return;
+            frameCount++;
+            update();
+            draw();
+            requestAnimationFrame(animate);
+        }
+
+        function gameOver() {
+            gameRunning = false;
+            finalScoreEl.textContent = score;
+            finalLevelEl.textContent = level;
+            gameOverScreen.style.display = 'block';
+            shakeTime = 10;
+            draw();
+        }
+
+        function startGame() {
+            init();
+        }
+
+        window.addEventListener('keydown', e => {
+            if(e.code==='ArrowUp') { 
+                if(!keys['ArrowUp'] && gameRunning) dino.jump(); 
+                keys['ArrowUp']=true; 
+                e.preventDefault();
+            }
+            if(e.code==='ArrowDown') {
+                keys['ArrowDown']=true;
+                e.preventDefault();
+            }
+            if(e.code==='Space') {
+                if (!gameRunning && gameOverScreen.style.display === 'block') { startGame(); }
+                e.preventDefault();
+            }
+            if(e.key==='Control' || e.key==='Meta') keys['Control']=true;
+        });
+        window.addEventListener('keyup', e => {
+            if(e.code==='ArrowUp') keys['ArrowUp']=false;
+            if(e.code==='ArrowDown') keys['ArrowDown']=false;
+            if(e.key==='Control'||e.key==='Meta') keys['Control']=false;
+        });
+        
+        const container = document.getElementById('game-container');
+        
+        // --- 修正手機觸控操作 ---
+        // 1. 偵測手指滑動 (Swipe Down)
+        let touchStartY = 0;
+        let touchStartX = 0;
+        
+        container.addEventListener('touchstart', e => {
+            e.preventDefault();
+            if (!gameRunning && gameOverScreen.style.display === 'block') { startGame(); return; }
+            
+            const t = e.changedTouches[0];
+            touchStartY = t.clientY;
+            touchStartX = t.clientX;
+            
+            // 處理多點觸控 (分別處理跳躍和攻擊)
+            for(let i=0; i<e.changedTouches.length; i++) {
+                let x = e.changedTouches[i].clientX - container.getBoundingClientRect().left;
+                if(x < container.offsetWidth/2) { 
+                    // 左半邊：跳躍 (只在剛按下去時跳)
+                    if(!keys['ArrowUp']) dino.jump(); 
+                    keys['ArrowUp'] = true; 
+                } else {
+                    // 右半邊：攻擊
+                    keys['Control'] = true; 
+                }
+            }
+        }, {passive:false});
+
+        container.addEventListener('touchmove', e => {
+            e.preventDefault(); // 防止滾動
+            const t = e.changedTouches[0];
+            
+            // 偵測快速下滑 (Fast Drop)
+            if (t.clientY - touchStartY > 50) { // 下滑距離超過 50px
+                keys['ArrowDown'] = true;
+            }
+        }, {passive:false});
+
+        container.addEventListener('touchend', e => {
+            e.preventDefault();
+            
+            // 重置狀態
+            keys['ArrowDown'] = false;
+            
+            // 檢查手指是否離開了左右控制區
+            // 這裡簡單處理：只要有手指離開，就檢查該區域是否還有其他手指，如果沒有則放開按鍵
+            // 為了簡化，我們遍歷所有剩餘的觸控點來決定按鍵狀態
+            
+            let leftActive = false;
+            let rightActive = false;
+            
+            for (let i = 0; i < e.touches.length; i++) {
+                let x = e.touches[i].clientX - container.getBoundingClientRect().left;
+                if (x < container.offsetWidth/2) leftActive = true;
+                else rightActive = true;
+            }
+            
+            keys['ArrowUp'] = leftActive;
+            keys['Control'] = rightActive;
+            
+        }, {passive:false});
+
+        startGame();
+    </script>
+</body>
+</html>

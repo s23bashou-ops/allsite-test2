@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCM Dashboard 使用手冊 ✨</title>
+    <!-- 引入 Google Fonts: 改用 Noto Sans TC 標準字體 -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+    <!-- 引入 Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        body {
+            /* 字體修改：使用 Nunito (英) 和 Noto Sans TC (中) */
+            font-family: 'Nunito', 'Noto Sans TC', sans-serif;
+            background-color: #FFFBEB; /* 鵝黃/米黃色背景 (Amber-50) */
+            background-image: radial-gradient(#FDE68A 2px, transparent 2px); /* 黃色圓點 */
+            background-size: 30px 30px;
+            color: #475569;
+        }
+        
+        /* 滾動條配色修改：黃色系 */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #FFFBEB; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #FCD34D; /* Amber-300 */
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #F59E0B; /* Amber-500 */
+        }
+
+        /* 卡片浮動效果 */
+        .cute-card {
+            transition: all 0.3s ease;
+            border-bottom: 4px solid #E2E8F0;
+        }
+        .cute-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.1);
+            border-bottom: 4px solid #F59E0B; /* Amber-500 底部線條 */
+        }
+
+        /* 標題裝飾 */
+        .title-highlight {
+            position: relative;
+            z-index: 1;
+        }
+        .title-highlight::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 35%;
+            background-color: #FDE68A; /* 鵝黃色螢光筆效果 */
+            z-index: -1;
+            border-radius: 4px;
+            opacity: 0.8;
+        }
+
+        .step-circle {
+            /* 漸層改為黃橘色系 */
+            background: linear-gradient(135deg, #F59E0B 0%, #EA580C 100%);
+        }
+
+        /* 左側導覽列連結樣式 */
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.5rem;
+            border-radius: 0.5rem;
+            color: #64748b;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .sidebar-link:hover {
+            background-color: #FEF3C7; /* Amber-100 */
+            color: #B45309; /* Amber-700 */
+        }
+    </style>
+</head>
+<body class="selection:bg-yellow-200 flex flex-col min-h-screen">
+
+    <!-- 新增：頂部專案連結通知列 -->
+    <div class="bg-slate-800 text-amber-300 py-2.5 px-4 text-center text-sm font-bold tracking-wide relative z-[60]">
+        <a href="https://gemini.google.com/share/81fda7a42cdc" target="_blank" class="hover:text-white transition-colors flex items-center justify-center gap-2 group">
+            <i data-lucide="external-link" class="w-4 h-4 group-hover:scale-110 transition-transform"></i>
+            點此前往 SCM Dashboard 實際專案系統
+        </a>
+    </div>
+
+    <!-- 頂部導覽列 (Logo 常駐，選單僅在手機/平板顯示) -->
+    <nav class="sticky top-0 z-50 bg-white/90 backdrop-blur-md shadow-sm border-b border-yellow-100">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <!-- Icon 背景改為藍黃漸層 -->
+                <div class="bg-gradient-to-tr from-blue-500 to-amber-400 p-2 rounded-xl text-white">
+                    <i data-lucide="layout-dashboard"></i>
+                </div>
+                <span class="font-bold text-xl text-slate-700 tracking-wide">SCM 小幫手</span>
+            </div>
+            <!-- 手機版選單 (lg:hidden 表示大螢幕隱藏) -->
+            <div class="hidden md:flex lg:hidden gap-6 text-sm font-bold text-slate-600">
+                <a href="#upload" class="hover:text-yellow-600 transition-colors">匯入</a>
+                <a href="#filter" class="hover:text-slate-600 transition-colors">篩選</a>
+                <a href="#procurement" class="hover:text-blue-600 transition-colors">採購</a>
+                <a href="#material" class="hover:text-purple-600 transition-colors">物料</a>
+                <a href="#practice" class="hover:text-rose-600 transition-colors">練習</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要佈局容器 -->
+    <div class="max-w-7xl mx-auto px-4 w-full flex items-start gap-10 mt-6 lg:mt-10 flex-1">
+        
+        <!-- 左側固定導覽列 (僅在電腦版顯示 lg:block) -->
+        <aside class="hidden lg:block w-64 sticky top-24 shrink-0">
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 px-3">使用指南目錄</h3>
+                <nav>
+                    <a href="#upload" class="sidebar-link group">
+                        <div class="w-8 h-8 rounded-lg bg-green-50 text-green-600 flex items-center justify-center mr-3 group-hover:bg-green-100 transition-colors">
+                            <span class="font-bold text-sm">1</span>
+                        </div>
+                        資料匯入
+                    </a>
+                    <a href="#filter" class="sidebar-link group">
+                        <div class="w-8 h-8 rounded-lg bg-slate-50 text-slate-600 flex items-center justify-center mr-3 group-hover:bg-slate-100 transition-colors">
+                            <span class="font-bold text-sm">2</span>
+                        </div>
+                        進階篩選
+                    </a>
+                    <a href="#procurement" class="sidebar-link group">
+                        <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center mr-3 group-hover:bg-blue-100 transition-colors">
+                            <span class="font-bold text-sm">3</span>
+                        </div>
+                        採購管理
+                    </a>
+                    <a href="#material" class="sidebar-link group">
+                        <div class="w-8 h-8 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center mr-3 group-hover:bg-purple-100 transition-colors">
+                            <span class="font-bold text-sm">4</span>
+                        </div>
+                        物料管理
+                    </a>
+                    <a href="#price" class="sidebar-link group">
+                        <div class="w-8 h-8 rounded-lg bg-orange-50 text-orange-600 flex items-center justify-center mr-3 group-hover:bg-orange-100 transition-colors">
+                            <span class="font-bold text-sm">5</span>
+                        </div>
+                        產品比價
+                    </a>
+                    <!-- 新增項目 -->
+                    <a href="#practice" class="sidebar-link group">
+                        <div class="w-8 h-8 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center mr-3 group-hover:bg-rose-100 transition-colors">
+                            <span class="font-bold text-sm">6</span>
+                        </div>
+                        實戰演練
+                    </a>
+                </nav>
+            </div>
+            
+            <div class="mt-6 bg-yellow-100/50 rounded-xl p-4 border border-yellow-200/50">
+                <div class="flex items-center gap-2 text-yellow-800 font-bold mb-1">
+                    <i data-lucide="lightbulb" class="w-4 h-4"></i>
+                    <span>小撇步</span>
+                </div>
+                <p class="text-xs text-yellow-700 leading-relaxed">
+                    您可以隨時點擊左側目錄快速切換到不同功能說明喔！
+                </p>
+            </div>
+        </aside>
+
+        <!-- 右側主要內容區 -->
+        <div class="flex-1 min-w-0 pb-20 space-y-20">
+            
+            <!-- 主標題區 -->
+            <header class="text-center py-10 lg:py-16">
+                <span class="inline-block py-1 px-3 rounded-full bg-yellow-100 text-yellow-800 text-sm font-bold mb-4 animate-bounce">✨ 全新上線 ✨</span>
+                <h1 class="text-4xl md:text-5xl font-extrabold text-slate-800 mb-4 tracking-tight">
+                    供應鏈管理 <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-500 to-orange-500">簡單上手！</span>
+                </h1>
+                <p class="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
+                    歡迎使用 SCM Dashboard。這裡能協助您高效管理訂單、監控庫存並進行價格分析。跟著這份手冊，輕鬆掌握系統操作！💡
+                </p>
+            </header>
+
+            <!-- 1. 資料匯入 -->
+            <section id="upload" class="scroll-mt-32">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="step-circle w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-lg">1</div>
+                    <h2 class="text-2xl font-bold text-slate-800 title-highlight">資料匯入 (Data Import)</h2>
+                </div>
+                
+                <div class="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-slate-100">
+                    <div class="grid md:grid-cols-2 gap-8 items-center">
+                        <div>
+                            <p class="mb-4 text-slate-600">系統運作需要基礎數據支持，請先進行資料匯入操作：</p>
+                            <ul class="space-y-3">
+                                <li class="flex items-center gap-3 bg-green-50 p-3 rounded-lg border border-green-100 text-green-800 font-medium">
+                                    <i data-lucide="file-spreadsheet" class="w-5 h-5"></i>
+                                    點擊介面右上角的「匯入資料 (Import Raw Data)」
+                                </li>
+                                <li class="flex items-center gap-3 bg-blue-50 p-3 rounded-lg border border-blue-100 text-blue-800 font-medium">
+                                    <i data-lucide="file-check" class="w-5 h-5"></i>
+                                    支援 .csv 或 .xlsx 格式文件
+                                </li>
+                            </ul>
+                            
+                            <!-- 下載練習檔案按鈕區塊 -->
+                            <div class="mt-6">
+                                <a href="data:text/csv;charset=utf-8,PO_ID%2CPO_Date%2CProduct_Type%2CSKU%2CLocation%2CSupplier_ID%2CSupplier_Name%2CPO_Status%2CQC_Result%2CPO_Qty%2CUnit_Price%2CTotal_Cost%2CLeadTime_Days%2CDelivery_Date%2CReceive_Date%2CReceive_Qty%2CStock_Level%2CSafety_Stock%2CReorder_Point%2CSKU_Status%2CDefect_Qty%2CDefect_Rate%0APO000001%2C2023-01-01%2CPackaging%2CPackaging-011%2CVietnam%2CS001%2CAlpha%20Components%2CDelivered%2CN%2FA%2C100%2C367.94%2C36794%2C13%2C2023-01-14%2C%2C%2C70%2C56%2C135%2CCritical%2C%2C%0APO000002%2C2023-01-01%2CPackaging%2CPackaging-022%2CVietnam%2CS002%2CBravo%20Supply%2CDelivered%2CN%2FA%2C492%2C308.8%2C151929.6%2C19%2C2023-01-20%2C%2C%2C311%2C37%2C85%2COptimal%2C%2C%0APO000003%2C2023-01-01%2CPackaging%2CPackaging-019%2CKaohsiung%2CS006%2CFormosa%20Trading%2CDelivered%2CN%2FA%2C283%2C82.88%2C23455.04%2C16%2C2023-01-17%2C%2C%2C110%2C37%2C112%2CCritical%2C%2C%0APO001991%2C2025-12-26%2CPCB%2CPCB-008%2CVietnam%2CS003%2CCanyon%20Industrial%2CDelivered%2CN%2FA%2C137%2C80.46%2C11023.02%2C19%2C2026-01-14%2C%2C%2C1266%2C53%2C124%2COptimal%2C%2C%0APO001992%2C2025-12-28%2CBattery%2CBattery-002%2CVietnam%2CS005%2CEverBright%20Materials%2CReceived%2CPass%2C420%2C405.02%2C170108.4%2C17%2C2026-01-14%2C2026-01-17%2C420%2C2435%2C76%2C241%2COptimal%2C4%2C0.0095%0APO001993%2C2025-12-28%2CIC%2CIC-016%2CTaichung%2CS002%2CBravo%20Supply%2COpen%2CN%2FA%2C385%2C98.11%2C37772.35%2C23%2C%2C%2C%2C652%2C145%2C296%2COptimal%2C%2C" download="SCM_Practice_Data.csv" class="flex items-center justify-center gap-2 w-full bg-amber-500 text-white py-3 rounded-xl hover:bg-amber-600 transition-colors shadow-md group border border-amber-600">
+                                    <i data-lucide="download" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
+                                    下載練習用範例檔案 (.csv)
+                                </a>
+                                <p class="text-xs text-center text-slate-400 mt-2">包含模擬訂單資料，下載後可直接匯入系統測試</p>
+                            </div>
+
+                            <div class="mt-6 bg-amber-50 p-4 rounded-lg border border-amber-100 text-sm text-amber-900">
+                                <strong>💡 系統提示：</strong> 
+                                Excel 表格請務必包含 <code>PO_ID</code>, <code>Total_Cost</code>, <code>SKU</code>, <code>PO_Status</code> 等關鍵欄位。
+                                <br><span class="text-amber-700 font-bold">建議您可直接下載上方範例檔案，修改內容後再行匯入，以確保格式正確。</span>
+                            </div>
+                        </div>
+                        <div class="bg-slate-50 rounded-xl p-6 border-2 border-dashed border-slate-300 flex flex-col items-center justify-center text-center">
+                            <div class="bg-green-100 p-4 rounded-full mb-3">
+                                <i data-lucide="upload-cloud" class="w-8 h-8 text-green-600"></i>
+                            </div>
+                            <p class="font-bold text-slate-700">操作示意</p>
+                            <p class="text-xs text-slate-500 mt-2">點擊 Dashboard 右上角的綠色按鈕上傳檔案</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. 進階篩選 (Moved) -->
+            <section id="filter" class="scroll-mt-32">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="step-circle w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-lg">2</div>
+                    <h2 class="text-2xl font-bold text-slate-800 title-highlight">進階篩選 (Advanced Filter)</h2>
+                </div>
+                
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+                    <div class="flex flex-col md:flex-row gap-6 items-start">
+                        <div class="flex-1">
+                            <p class="text-slate-600 mb-4 leading-relaxed">
+                                資料匯入後，您可以使用進階篩選器來精準查找資料。<br>
+                                <strong class="text-amber-600 bg-amber-50 px-2 py-0.5 rounded">重要提示：</strong> 
+                                此功能在 <strong>「採購管理」</strong> 和 <strong>「物料管理」</strong> 頁面皆可通用，設定一次篩選條件，兩個頁面的數據會同步更新。
+                            </p>
+                            
+                            <div class="flex flex-wrap gap-3 mt-2">
+                                <div class="flex items-center gap-2 text-slate-600 bg-slate-50 px-3 py-2 rounded-lg border border-slate-200 text-sm font-medium">
+                                    <i data-lucide="calendar" class="w-4 h-4"></i> 日期範圍
+                                </div>
+                                <div class="flex items-center gap-2 text-slate-600 bg-slate-50 px-3 py-2 rounded-lg border border-slate-200 text-sm font-medium">
+                                    <i data-lucide="package" class="w-4 h-4"></i> 產品類別
+                                </div>
+                                <div class="flex items-center gap-2 text-slate-600 bg-slate-50 px-3 py-2 rounded-lg border border-slate-200 text-sm font-medium">
+                                    <i data-lucide="map-pin" class="w-4 h-4"></i> 地點
+                                </div>
+                                <div class="flex items-center gap-2 text-slate-600 bg-slate-50 px-3 py-2 rounded-lg border border-slate-200 text-sm font-medium">
+                                    <i data-lucide="building" class="w-4 h-4"></i> 供應商
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 md:w-1/3 w-full text-center">
+                            <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-slate-200 mb-2">
+                                <i data-lucide="filter" class="text-slate-500"></i>
+                            </div>
+                            <p class="text-sm text-slate-500">點擊介面頂部的「進階篩選器」即可展開面板</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. 採購管理 -->
+            <section id="procurement" class="scroll-mt-32">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="step-circle w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-lg">3</div>
+                    <h2 class="text-2xl font-bold text-slate-800 title-highlight">採購管理 (Procurement Management)</h2>
+                </div>
+
+                <div class="grid md:grid-cols-3 gap-6">
+                    <!-- KPI Card -->
+                    <div class="bg-white p-6 rounded-xl cute-card">
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600 mb-4">
+                            <i data-lucide="dollar-sign"></i>
+                        </div>
+                        <h3 class="font-bold text-lg mb-2 text-slate-800">KPI 總覽</h3>
+                        <p class="text-sm text-slate-600">快速掌握總支出 (Total Spend)、待處理訂單 (Open POs) 數量，以及平均交貨時間 (Lead Time) 分析。</p>
+                    </div>
+
+                    <!-- Spend Trend -->
+                    <div class="bg-white p-6 rounded-xl cute-card">
+                        <div class="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center text-indigo-600 mb-4">
+                            <i data-lucide="bar-chart-3"></i>
+                        </div>
+                        <h3 class="font-bold text-lg mb-2 text-slate-800">支出趨勢圖</h3>
+                        <p class="text-sm text-slate-600">藍色長條代表實際支出，灰色背景為預算。透過圖表可直觀監控支出是否超出預算範圍。</p>
+                    </div>
+
+                    <!-- Supplier Rank -->
+                    <div class="bg-white p-6 rounded-xl cute-card">
+                        <div class="w-12 h-12 bg-rose-100 rounded-lg flex items-center justify-center text-rose-600 mb-4">
+                            <i data-lucide="award"></i>
+                        </div>
+                        <h3 class="font-bold text-lg mb-2 text-slate-800">供應商排名</h3>
+                        <p class="text-sm text-slate-600">列出採購金額最高的「前 10 大」供應商，協助您識別主要合作夥伴並進行議價策略規劃。</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. 物料管理 -->
+            <section id="material" class="scroll-mt-32">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="step-circle w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-lg">4</div>
+                    <h2 class="text-2xl font-bold text-slate-800 title-highlight">物料管理 (Material Management)</h2>
+                </div>
+
+                <!-- 新增：Material KPI Overview -->
+                <div class="grid md:grid-cols-3 gap-6 mb-6">
+                    <div class="bg-white p-5 rounded-xl cute-card border border-slate-100">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">庫存健康度</p>
+                                <h4 class="text-2xl font-bold text-emerald-600 mt-1">92%</h4>
+                            </div>
+                            <div class="p-2 bg-emerald-50 rounded-lg text-emerald-600">
+                                <i data-lucide="activity" class="w-5 h-5"></i>
+                            </div>
+                        </div>
+                        <p class="text-xs text-slate-400 mt-2">保持在庫存最佳水位的比例</p>
+                    </div>
+                    <div class="bg-white p-5 rounded-xl cute-card border border-slate-100">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">OTIF 達成率</p>
+                                <h4 class="text-2xl font-bold text-blue-600 mt-1">88%</h4>
+                            </div>
+                            <div class="p-2 bg-blue-50 rounded-lg text-blue-600">
+                                <i data-lucide="check-circle-2" class="w-5 h-5"></i>
+                            </div>
+                        </div>
+                        <p class="text-xs text-slate-400 mt-2">準時且足量交貨的比率</p>
+                    </div>
+                    <div class="bg-white p-5 rounded-xl cute-card border border-slate-100">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">庫存總價值</p>
+                                <h4 class="text-2xl font-bold text-purple-600 mt-1">$1.2M</h4>
+                            </div>
+                            <div class="p-2 bg-purple-50 rounded-lg text-purple-600">
+                                <i data-lucide="coins" class="w-5 h-5"></i>
+                            </div>
+                        </div>
+                        <p class="text-xs text-slate-400 mt-2">當前庫存資產總額</p>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-8 border border-slate-100 shadow-sm relative overflow-hidden">
+                    <div class="absolute top-0 right-0 bg-yellow-100 w-32 h-32 rounded-full -mr-16 -mt-16 opacity-50"></div>
+                    
+                    <div class="grid md:grid-cols-2 gap-10">
+                        <div>
+                            <h3 class="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+                                <i data-lucide="alert-triangle" class="text-amber-500"></i>
+                                缺料風險預警 (Risk Alerts)
+                            </h3>
+                            <p class="text-slate-600 mb-4">系統自動計算庫存風險等級，協助即時補貨：</p>
+                            <div class="space-y-3">
+                                <div class="flex items-center gap-3 bg-red-50 p-3 rounded-lg border border-red-100">
+                                    <span class="bg-red-600 text-white text-xs px-2 py-1 rounded-full font-bold">High Risk</span>
+                                    <span class="text-sm text-slate-700">低於 <strong class="text-red-700">安全庫存 (Safety Stock)</strong>，需緊急處理。</span>
+                                </div>
+                                <div class="flex items-center gap-3 bg-amber-50 p-3 rounded-lg border border-amber-100">
+                                    <span class="bg-amber-500 text-white text-xs px-2 py-1 rounded-full font-bold">Medium Risk</span>
+                                    <span class="text-sm text-slate-700">低於 <strong class="text-amber-700">再訂購點 (Reorder Point)</strong>，建議進行補貨。</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex flex-col justify-center">
+                             <h3 class="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+                                <i data-lucide="pie-chart" class="text-purple-600"></i>
+                                庫存健康度
+                            </h3>
+                            <p class="text-slate-600 leading-relaxed">
+                                圓餅圖顯示整體庫存狀態分佈。<br>
+                                目標是提升 <span class="text-green-600 font-bold">Optimal (綠色)</span> 的比例。<br>
+                                若 <span class="text-red-600 font-bold">Critical (紅色)</span> 比例過高，請檢視供應鏈穩定性。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. 產品比價 -->
+            <section id="price" class="scroll-mt-32">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="step-circle w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-lg">5</div>
+                    <h2 class="text-2xl font-bold text-slate-800 title-highlight">產品比價 (Price Comparison)</h2>
+                </div>
+
+                <div class="bg-gradient-to-br from-blue-50 to-amber-50 rounded-2xl p-8 border border-white shadow-sm">
+                    <div class="flex flex-col md:flex-row items-center gap-8">
+                        <div class="flex-1">
+                            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 mb-4 flex items-center gap-3">
+                                <i data-lucide="search" class="text-slate-400"></i>
+                                <span class="text-slate-400 italic">輸入 SKU 例如: Adapter-001...</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-slate-800 mb-2">歷史價格查詢</h3>
+                            <p class="text-slate-600 leading-relaxed">
+                                查詢特定料號 (SKU) 的歷史採購單價與不同供應商的報價差異。<br>
+                                系統將以 <strong class="text-blue-600">泡泡圖 (Bubble Chart)</strong> 呈現數據分佈。
+                            </p>
+                            <ul class="mt-4 space-y-2 text-sm text-slate-600">
+                                <li>🔵 <strong>藍色圓點：</strong> 代表單筆歷史採購數量</li>
+                                <li>📏 <strong>橫軸：</strong> 不同的供應商來源</li>
+                                <li>📈 <strong>縱軸：</strong> 單價高低趨勢</li>
+                            </ul>
+                        </div>
+                        <div class="flex-1 bg-white p-3 rounded-xl shadow-md border border-slate-100 relative overflow-hidden group">
+                            
+                            <!-- 圖片嵌入區塊：移除固定高度與多餘留白，讓邊框緊貼圖片 -->
+                            <div class="w-full rounded-lg border border-slate-200 relative mb-2 overflow-hidden shadow-sm">
+                                <!-- 使用者提供的有效圖片連結 -->
+                                <img src="https://i.ibb.co/DPNmBHdn/message-Image-1766070752746.jpg" 
+                                     alt="Bubble Chart Visual" 
+                                     class="w-full h-auto block hover:scale-105 transition-transform duration-500">
+                            </div>
+                            <p class="text-xs text-center text-slate-500">提示：藍色圓點大小代表採購數量，位置越高代表單價越貴。</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 6. 實戰演練 (新增) -->
+            <section id="practice" class="scroll-mt-32">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="step-circle w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-lg">6</div>
+                    <h2 class="text-2xl font-bold text-slate-800 title-highlight">實戰演練：情境模擬 (Scenario Practice)</h2>
+                </div>
+                
+                <p class="text-slate-600 mb-6">以下是三個實際工作中的常見情境，請嘗試使用 SCM Dashboard 來解決問題：</p>
+
+                <div class="grid md:grid-cols-3 gap-6">
+                    <!-- Scenario 1 -->
+                    <div class="bg-white p-6 rounded-xl cute-card border-l-4 border-l-rose-400">
+                        <div class="flex items-center gap-2 mb-3">
+                            <span class="bg-rose-100 text-rose-600 text-xs font-bold px-2 py-1 rounded-full">物料控管</span>
+                            <h3 class="font-bold text-slate-800">緊急缺料確認</h3>
+                        </div>
+                        <p class="text-sm text-slate-600 mb-4 leading-relaxed">
+                            <strong>情境：</strong> 產線回報料號 <code>Battery-002</code> 快用完了，想確認是否已經低於安全庫存？
+                        </p>
+                        <div class="bg-slate-50 p-3 rounded-lg text-xs text-slate-500">
+                            <strong>🎯 操作提示：</strong><br>
+                            前往 <span class="text-purple-600 font-bold">物料管理</span> > 查看下方 <span class="text-amber-600 font-bold">缺料風險預警表</span>，或使用搜尋功能找該料號的庫存狀態。
+                        </div>
+                    </div>
+
+                    <!-- Scenario 2 (Updated) -->
+                    <div class="bg-white p-6 rounded-xl cute-card border-l-4 border-l-blue-400">
+                        <div class="flex items-center gap-2 mb-3">
+                            <span class="bg-blue-100 text-blue-600 text-xs font-bold px-2 py-1 rounded-full">採購稽核</span>
+                            <h3 class="font-bold text-slate-800">待處理訂單追蹤</h3>
+                        </div>
+                        <p class="text-sm text-slate-600 mb-4 leading-relaxed">
+                            <strong>情境：</strong> 確認供應商 <code>Bravo Supply</code> 目前的待處理採購單狀況為何?
+                        </p>
+                        <div class="bg-slate-50 p-3 rounded-lg text-xs text-slate-500">
+                            <strong>🎯 操作提示：</strong><br>
+                            1. 使用 <span class="text-slate-700 font-bold">進階篩選</span> 選定供應商 <code>Bravo Supply</code>。<br>
+                            2. 前往 <span class="text-blue-600 font-bold">採購管理</span> > 查看上方的 <span class="text-indigo-500 font-bold">待處理訂單 (Open POs)</span> KPI 卡片數值。
+                        </div>
+                    </div>
+
+                    <!-- Scenario 3 -->
+                    <div class="bg-white p-6 rounded-xl cute-card border-l-4 border-l-amber-400">
+                        <div class="flex items-center gap-2 mb-3">
+                            <span class="bg-amber-100 text-amber-600 text-xs font-bold px-2 py-1 rounded-full">議價談判</span>
+                            <h3 class="font-bold text-slate-800">詢價與比價</h3>
+                        </div>
+                        <p class="text-sm text-slate-600 mb-4 leading-relaxed">
+                            <strong>情境：</strong> 準備採購一批 <code>IC-005</code>，想知道歷史最低價是多少，以作為談判籌碼。
+                        </p>
+                        <div class="bg-slate-50 p-3 rounded-lg text-xs text-slate-500">
+                            <strong>🎯 操作提示：</strong><br>
+                            前往 <span class="text-orange-500 font-bold">產品比價</span> > 在搜尋框輸入料號 > 觀察 <span class="text-blue-600 font-bold">泡泡圖</span> 中最低點的價格與對應供應商。
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 頁尾 (移入 main 區塊內) -->
+            <footer class="bg-white border-t border-yellow-100 py-10 mt-10 rounded-t-2xl">
+                <div class="text-center">
+                    <p class="text-slate-600 font-bold mb-2">SCM Dashboard System</p>
+                    <p class="text-slate-400 text-sm">Made with ❤️ for Supply Chain Masters.</p>
+                    <div class="mt-6 flex justify-center gap-4">
+                        <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="bg-yellow-100 text-yellow-800 px-4 py-2 rounded-full text-sm font-bold hover:bg-yellow-200 transition-colors">
+                            ⬆️ 回到頂部
+                        </button>
+                    </div>
+                </div>
+            </footer>
+
+        </div>
+
+    </div>
+
+    <!-- 初始化 Icons -->
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>
